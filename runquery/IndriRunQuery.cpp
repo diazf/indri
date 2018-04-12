@@ -344,6 +344,8 @@ private:
   int _requested;
   int _initialRequested;
 
+	int _rerankSize;
+
   bool _printDocuments;
   bool _printPassages;
   bool _printSnippets;
@@ -377,7 +379,7 @@ private:
             if (workingSet.size() > 0)
               _results = _environment.runQuery( query, docids, _initialRequested, queryType );
             else
-              _results = _environment.runQuery( query, _initialRequested, queryType );
+              _results = _environment.runQuery( query, (_rerankSize > 0) ? _rerankSize : _initialRequested, queryType );
           }
       }
       
@@ -391,16 +393,28 @@ private:
           }
         }
         std::string expandedQuery;
-        if (relFBDocs.size() != 0)
+        if (relFBDocs.size() != 0){
           expandedQuery = _expander->expand( query, fbDocs );
-        else
-          expandedQuery = _expander->expand( query, _results );
+        }else{
+            if (_rerankSize>0){
+                std::vector<indri::api::ScoredExtentResult> _resultsFB(_results.begin(),_results.begin()+_initialRequested);                          
+                expandedQuery = _expander->expand( query, _resultsFB );
+            }else{
+                expandedQuery = _expander->expand( query, _results );              
+            }        	
+        }
         if( _printQuery ) output << "# expanded: " << expandedQuery << std::endl;
         if (workingSet.size() > 0) {
           docids = _environment.documentIDsFromMetadata("docno", workingSet);
           _results = _environment.runQuery( expandedQuery, docids, _requested, queryType );
         } else {
-          _results = _environment.runQuery( expandedQuery, _requested, queryType );
+            if (_rerankSize>0){
+              std::vector<lemur::api::DOCID_T> rerankSet;
+              for (int i = 0 ; i < _results.size() ; i++){rerankSet.push_back(_results[i].document);}
+              _results = _environment.runQuery( expandedQuery, rerankSet, _requested, queryType );              
+          }else{
+              _results = _environment.runQuery( expandedQuery, _requested, queryType );              
+          }
         }
       }
     }
@@ -573,6 +587,7 @@ public:
 
     _requested = _parameters.get( "count", 1000 );
     _initialRequested = _parameters.get( "fbDocs", _requested );
+    _rerankSize = _parameters.get( "rerankSize", 0 );
     _runID = _parameters.get( "runID", "indri" );
     _trecFormat = _parameters.get( "trecFormat" , false );
     _inexFormat = _parameters.exists( "inex" );
