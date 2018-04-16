@@ -340,11 +340,13 @@ private:
   std::priority_queue< query_t*, std::vector< query_t* >, query_t::greater >& _output;
 
   indri::api::QueryEnvironment _environment;
+  indri::api::QueryEnvironment _externalEnvironment;
   indri::api::Parameters& _parameters;
   int _requested;
   int _initialRequested;
 
 	int _rerankSize;
+	bool _externalExpansion;
 
   bool _printDocuments;
   bool _printPassages;
@@ -364,58 +366,124 @@ private:
                   const std::string &queryType, const std::vector<std::string> &workingSet, std::vector<std::string> relFBDocs ) {
     try {
       if( _printQuery ) output << "# query: " << query << std::endl;
-      std::vector<lemur::api::DOCID_T> docids;;
-      if (workingSet.size() > 0) 
-        docids = _environment.documentIDsFromMetadata("docno", workingSet);
-
+			
+      std::vector<lemur::api::DOCID_T> workingSetDocids;
+		  std::vector<indri::api::ScoredExtentResult> externalResults;
+			
+		  std::vector<indri::api::ScoredExtentResult> initialRetrievalResults;			
+			
+			//
+			// 0. build working set if explicit docids or derive from initial retrieval
+			//
+      if (workingSet.size() > 0){
+				//
+				// 0.a. read in working set from docids
+				//
+        workingSetDocids = _environment.documentIDsFromMetadata("docno", workingSet);
+      }
+			if (_rerankSize > 0){
+				//
+				// 0.b. build working set from initial retrieval
+				//
+			  initialRetrievalResults = _environment.runQuery( query, _rerankSize, queryType );
+				for (int i = 0 ; i < initialRetrievalResults.size() ; i++){
+					workingSetDocids.push_back(initialRetrievalResults[i].document);
+				}
+			}
+			//
+			// 1. do initial retrieval
+			//
       if (relFBDocs.size() == 0) {
           if( _printSnippets ) {
-            if (workingSet.size() > 0) 
-              _annotation = _environment.runAnnotatedQuery( query, docids, _initialRequested, queryType ); 
-            else
-              _annotation = _environment.runAnnotatedQuery( query, _initialRequested );
-            _results = _annotation->getResults();
-          } else {
-            if (workingSet.size() > 0)
-              _results = _environment.runQuery( query, docids, _initialRequested, queryType );
-            else
-              _results = _environment.runQuery( query, (_rerankSize > 0) ? _rerankSize : _initialRequested, queryType );
+						//
+						// 1.a. snippet code
+						//
+            if (workingSetDocids.size() > 0) {
+              _annotation = _environment.runAnnotatedQuery( query, workingSetDocids, _initialRequested, queryType ); 
+            }else{
+              _annotation = _environment.runAnnotatedQuery( query, _initialRequested );            	
+            }
+            initialRetrievalResults = _annotation->getResults();
+          } else if (_externalExpansion){
+						//
+						// 1.b. get initial retrieval from external corpus
+						//
+            initialRetrievalResults = _externalEnvironment.runQuery( query, _initialRequested, queryType );
+					} else {
+						//
+						// 1.c. non-snippet code
+						//
+            if ((workingSetDocids.size() > 0) && (_rerankSize == 0)){
+							//
+							// 1.c.i. score working set if not already scored
+							//
+              initialRetrievalResults = _environment.runQuery( query, workingSetDocids, _initialRequested, queryType );
+            }else{
+							//
+							// 1.c.ii. score full retrieval
+							//
+              initialRetrievalResults = _environment.runQuery( query, _initialRequested, queryType );
+            }
           }
       }
-      
       if( _expander ) {
+	      //
+				// 2.a. expanded retrieval
+				//
         std::vector<indri::api::ScoredExtentResult> fbDocs;
         if (relFBDocs.size() > 0) {
-          docids = _environment.documentIDsFromMetadata("docno", relFBDocs);
-          for (size_t i = 0; i < docids.size(); i++) {
-            indri::api::ScoredExtentResult r(0.0, docids[i]);
+					//
+					// 2.a.i. true relevance scores
+					//
+		      std::vector<lemur::api::DOCID_T> relFBDocids = _environment.documentIDsFromMetadata("docno", relFBDocs);
+          for (size_t i = 0; i < relFBDocids.size(); i++) {
+            indri::api::ScoredExtentResult r(0.0, relFBDocids[i]);
             fbDocs.push_back(r);
           }
         }
         std::string expandedQuery;
         if (relFBDocs.size() != 0){
+					//
+					// 2.a.ii true relevance RM
+					//
           expandedQuery = _expander->expand( query, fbDocs );
         }else{
-            if (_rerankSize>0){
-                std::vector<indri::api::ScoredExtentResult> _resultsFB(_results.begin(),_results.begin()+_initialRequested);                          
-                expandedQuery = _expander->expand( query, _resultsFB );
-            }else{
-                expandedQuery = _expander->expand( query, _results );              
-            }        	
-        }
-        if( _printQuery ) output << "# expanded: " << expandedQuery << std::endl;
-        if (workingSet.size() > 0) {
-          docids = _environment.documentIDsFromMetadata("docno", workingSet);
-          _results = _environment.runQuery( expandedQuery, docids, _requested, queryType );
-        } else {
-            if (_rerankSize>0){
-              std::vector<lemur::api::DOCID_T> rerankSet;
-              for (int i = 0 ; i < _results.size() ; i++){rerankSet.push_back(_results[i].document);}
-              _results = _environment.runQuery( expandedQuery, rerankSet, _requested, queryType );              
+					//
+					// 2.a.iii pseudo-relevance RM
+					//
+          if ((_rerankSize>0)&&(_externalExpansion==false)){
+						//
+						// 2.a.iii.1. build RM from _initialRequested documents from _rerankSize initial retrieval documents
+						//
+            std::vector<indri::api::ScoredExtentResult> resultsFB(initialRetrievalResults.begin(),initialRetrievalResults.begin()+_initialRequested);                          
+            expandedQuery = _expander->expand( query, resultsFB );
           }else{
-              _results = _environment.runQuery( expandedQuery, _requested, queryType );              
-          }
+						//
+						// 2.a.iii.2. build RM from _initialRequested initial retrieval documents
+						//
+            expandedQuery = _expander->expand( query, initialRetrievalResults );              
+          }        	
         }
+				//
+				// 2.a.iv. build final ranked list
+				//
+        if( _printQuery ) output << "# expanded: " << expandedQuery << std::endl;
+        if (workingSetDocids.size() > 0) {
+					//
+					// 2.a.iv.1. rerank docids
+					//
+          _results = _environment.runQuery( expandedQuery, workingSetDocids, _requested, queryType );
+        } else {
+					//
+					// 2.a.iv.2. run full expanded retrieval
+					//
+          _results = _environment.runQuery( expandedQuery, _requested, queryType );              
+        }
+      }else{
+      	//
+				// 2.b. final retrieval is the initial retrieval
+				//
+				_results = initialRetrievalResults;
       }
     }
     catch( lemur::api::Exception& e )
@@ -556,15 +624,24 @@ public:
 
   UINT64 initialize() {
     try {        
+		bool externalIndices = false;
+
     _environment.setSingleBackgroundModel( _parameters.get("singleBackgroundModel", false) );
 
     std::vector<std::string> stopwords;
-    if( copy_parameters_to_string_vector( stopwords, _parameters, "stopper.word" ) )
+    if( copy_parameters_to_string_vector( stopwords, _parameters, "stopper.word" ) ){
       _environment.setStopwords(stopwords);
+      _externalEnvironment.setStopwords(stopwords);
+		}
 
     std::vector<std::string> smoothingRules;
-    if( copy_parameters_to_string_vector( smoothingRules, _parameters, "rule" ) )
-      _environment.setScoringRules( smoothingRules );
+    if( copy_parameters_to_string_vector( smoothingRules, _parameters, "rule" ) ){
+      _environment.setScoringRules( smoothingRules );    	
+      _externalEnvironment.setScoringRules( smoothingRules );    	
+    }
+    if( copy_parameters_to_string_vector( smoothingRules, _parameters, "externalRule" ) ){
+      _externalEnvironment.setScoringRules( smoothingRules );    	
+    }
 
    if( _parameters.exists( "index" ) ) {
       indri::api::Parameters indexes = _parameters["index"];
@@ -573,7 +650,7 @@ public:
         _environment.addIndex( std::string(indexes[i]) );
       }
     }
-
+		
     if( _parameters.exists( "server" ) ) {
       indri::api::Parameters servers = _parameters["server"];
 
@@ -581,6 +658,25 @@ public:
         _environment.addServer( std::string(servers[i]) );
       }
     }
+		
+    if( _parameters.exists( "externalIndex" ) ) {
+			externalIndices = true;
+       indri::api::Parameters indexes = _parameters["externalIndex"];
+
+       for( size_t i=0; i < indexes.size(); i++ ) {
+         _externalEnvironment.addIndex( std::string(indexes[i]) );
+       }
+     }
+
+     if( _parameters.exists( "externalServer" ) ) {
+				externalIndices = true;
+       indri::api::Parameters servers = _parameters["externalServer"];
+
+       for( size_t i=0; i < servers.size(); i++ ) {
+         _externalEnvironment.addServer( std::string(servers[i]) );
+       }
+     }
+		
 
     if( _parameters.exists("maxWildcardTerms") )
         _environment.setMaxWildcardTerms(_parameters.get("maxWildcardTerms", 100));
@@ -610,7 +706,12 @@ public:
       }
     } else {
       if( _parameters.get( "fbDocs", 0 ) != 0 ) {
-        _expander = new indri::query::RMExpander( &_environment, _parameters );
+		    if (externalIndices) {
+					_externalExpansion = true;
+	        _expander = new indri::query::RMExpander( &_externalEnvironment, _parameters );
+				}else{
+	        _expander = new indri::query::RMExpander( &_environment, _parameters );
+				}
       }
     }
 
@@ -632,6 +733,7 @@ public:
   void deinitialize() {
     delete _expander;
     _environment.close();
+    _externalEnvironment.close();
   }
 
   bool hasWork() {
