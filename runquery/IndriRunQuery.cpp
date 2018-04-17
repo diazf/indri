@@ -627,6 +627,7 @@ public:
 			bool externalIndices = false;
 			_externalExpansion = false;
 			_environment.setSingleBackgroundModel( _parameters.get("singleBackgroundModel", false) );
+			_externalEnvironment.setSingleBackgroundModel( _parameters.get("singleBackgroundModel", false) );
 
 			std::vector<std::string> stopwords;
 			if( copy_parameters_to_string_vector( stopwords, _parameters, "stopper.word" ) ){
