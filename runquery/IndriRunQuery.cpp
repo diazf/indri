@@ -413,11 +413,13 @@ private:
 					//
 					// 1.c. non-snippet code
 					//
-					if ((workingSetDocids.size() > 0) && (_rerankSize == 0)){
+					if (workingSetDocids.size() > 0) {
 						//
 						// 1.c.i. score working set if not already scored
 						//
-						initialRetrievalResults = _environment.runQuery( query, workingSetDocids, _initialRequested, queryType );
+						if (_rerankSize == 0){
+							initialRetrievalResults = _environment.runQuery( query, workingSetDocids, _initialRequested, queryType );
+						}
 					}else{
 						//
 						// 1.c.ii. score full retrieval
@@ -455,7 +457,7 @@ private:
 						//
 						// 2.a.iii.1. build RM from _initialRequested documents from _rerankSize initial retrieval documents
 						//
-						std::vector<indri::api::ScoredExtentResult> resultsFB(initialRetrievalResults.begin(),initialRetrievalResults.begin()+_initialRequested);                          
+						std::vector<indri::api::ScoredExtentResult> resultsFB(initialRetrievalResults.begin(),(_initialRequested < initialRetrievalResults.size()) ? initialRetrievalResults.begin() : initialRetrievalResults.end());
 						expandedQuery = _expander->expand( query, resultsFB );
 					}else{
 						//
