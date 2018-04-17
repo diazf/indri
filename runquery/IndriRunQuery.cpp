@@ -625,7 +625,7 @@ public:
 	UINT64 initialize() {
 		try {        
 			bool externalIndices = false;
-
+			_externalExpansion = false;
 			_environment.setSingleBackgroundModel( _parameters.get("singleBackgroundModel", false) );
 
 			std::vector<std::string> stopwords;
@@ -708,7 +708,7 @@ public:
 				if( _parameters.get( "fbDocs", 0 ) != 0 ) {
 					if (externalIndices) {
 						_externalExpansion = true;
-						_expander = new indri::query::RMExpander( &_externalEnvironment, _parameters );
+						_expander = new indri::query::RMExpander( &_externalEnvironment, _parameters, &_environment);
 					}else{
 						_expander = new indri::query::RMExpander( &_environment, _parameters );
 					}

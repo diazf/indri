@@ -42,6 +42,7 @@ namespace indri
   
     protected:
       indri::api::QueryEnvironment * _env;
+      indri::api::QueryEnvironment * _targetEnv;
       indri::api::Parameters _param;
 
       std::map< std::string, bool > _stopwords;
@@ -55,7 +56,7 @@ namespace indri
       UINT64 getCF( const std::string& term );
   
     public:
-      QueryExpander( indri::api::QueryEnvironment * env , indri::api::Parameters& param );
+      QueryExpander( indri::api::QueryEnvironment * env , indri::api::Parameters& param , indri::api::QueryEnvironment * targetEnv = NULL);
       virtual ~QueryExpander() {};
 
       // runs original query, expands query based on results ( via expand( .. ) ), then runs expanded query

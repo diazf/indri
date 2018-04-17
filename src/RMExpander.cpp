@@ -21,7 +21,7 @@
 #include "indri/RMExpander.hpp"
 #include "indri/RelevanceModel.hpp"
 
-indri::query::RMExpander::RMExpander( indri::api::QueryEnvironment * env , indri::api::Parameters& param ) : indri::query::QueryExpander( env, param ) { }
+indri::query::RMExpander::RMExpander( indri::api::QueryEnvironment * env , indri::api::Parameters& param , indri::api::QueryEnvironment * targetEnv ) : indri::query::QueryExpander( env, param, targetEnv ) { }
 
 std::string indri::query::RMExpander::expand( std::string originalQuery , std::vector<indri::api::ScoredExtentResult>& results ) {
   int fbDocs = _param.get( "fbDocs" , 10 );

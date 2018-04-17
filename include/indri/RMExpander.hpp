@@ -32,7 +32,7 @@ namespace indri
     
     class RMExpander : public QueryExpander  {
     public:
-      RMExpander( indri::api::QueryEnvironment * env , indri::api::Parameters& param );
+      RMExpander( indri::api::QueryEnvironment * env , indri::api::Parameters& param, indri::api::QueryEnvironment * targetEnv = NULL );
 
       virtual std::string expand( std::string originalQuery , std::vector<indri::api::ScoredExtentResult>& results );
     };

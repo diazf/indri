@@ -17,8 +17,9 @@
 
 #include "indri/QueryExpander.hpp"
 
-indri::query::QueryExpander::QueryExpander( indri::api::QueryEnvironment * env , indri::api::Parameters& param ) {
+indri::query::QueryExpander::QueryExpander( indri::api::QueryEnvironment * env , indri::api::Parameters& param , indri::api::QueryEnvironment * targetEnv ) {
   _env = env;
+	_targetEnv = targetEnv;
   _param = param;
 
   if( _param.exists( "stopper.word" ) ) {
@@ -124,7 +125,8 @@ std::string indri::query::QueryExpander::buildQuery( const std::string& original
        ++iter ) {
     std::string term = iter->first;
     // skip out of vocabulary term and those terms assigned 0 probability in the query model
-    if( term != "[OOV]" && _stopwords.find( term ) == _stopwords.end() && iter->second != 0.0 ) {
+		// skip terms not in target environment
+    if( (term != "[OOV]") && (_stopwords.find( term ) == _stopwords.end()) && (iter->second != 0.0) && ((_targetEnv == NULL)||(_targetEnv->documentStemCount( term )>0)) ) {
       ret << " " 
           << iter->second
           << " \""
