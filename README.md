@@ -59,6 +59,10 @@ Dependence models are built after internally stopping and stemming the query ter
 
 
 
+## Citation 
+
+Use the standard indri citation and  references to whatever algorithms above you are using.  Link to the code for reproducibility.   
+
 ## Notes
 
 To build on OSX, be should to set `CXXFLAGS=-fno-tree-vectorize`.  Thanks to [Luke Gallagher](https://github.com/lgrz).  
