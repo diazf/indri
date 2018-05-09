@@ -451,11 +451,11 @@ private:
           std::string term_j = tokens[offset];
           std::string gram = term_i + " " + term_j ;  
           if (offset==1){
-            ss_sd_ow << " #1( " << gram << ") ";
+            ss_sd_ow << " #1( " << gram << " ) ";
             ss_sd_uw << " #uw"<<uwSize<<"( " << gram << ") ";
           }else{
-            ss_fd_ow << " #1( " << gram << ") ";
-            ss_fd_uw << " #uw"<<uwSize<<"( " << gram << ") ";
+            ss_fd_ow << " #1( " << gram << " ) ";
+            ss_fd_uw << " #uw"<<uwSize<<"( " << gram << " ) ";
           }
         }        
       }
@@ -819,8 +819,8 @@ public:
         // initialize to sdm
         //
         _dm.combineWeight = 0.85;
-        _dm.uwWeight = 0.10;
-        _dm.owWeight = 0.05;
+        _dm.owWeight = 0.10;
+        _dm.uwWeight = 0.05;
         _dm.uwSize = 8;
         _dm.order = 1;
         _dm.rerankSize = 0;
