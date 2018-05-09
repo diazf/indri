@@ -100,6 +100,12 @@ If you find DM/RM3/EE slow, instead of limiting the parameter ranges, you should
 
 If you are not sure where your model fits in the cheatsheet above, a strong baseline is DM+EE.  
 
+**Note to paper readers (including reviewers):** You'll come across papers that use poorly implemented pseudo-relevance baselines (e.g. RM3/EE).  Here are common mistakes,
+* no parameter tuning (i.e.  a fixed number of feedback documents, expansion terms, or interpolation weight). 
+* poor parameter tuning (e.g. only testing 5-25 terms and/or documents).  I've seen effectiveness peak at hundreds of documents/terms for some collections.
+* unweighted document feedback (i.e. treating all feedback documents as equally relevant).  
+* unweighted term expansion (i.e. treating the new terms just additional query terms).
+
 ## Citation 
 
 Use the standard indri citation and  references to whatever algorithms above you are using.  Link to the code for reproducibility.   
