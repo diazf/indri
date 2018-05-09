@@ -86,7 +86,7 @@ Here's a simple cheatsheet for good baselines for your text retrieval experiment
   </tr>
 </table>
 
-For whatever the appropriate baseline is for your experiment, you should train model parameters on the same training set you're using for your model.  For RM3/EE, good ranges are,
+For whatever the appropriate baseline is for your experiment, you should train the baseline's parameters on the same training set you're using for your model.  For RM3/EE, good ranges are,
 
 | parameter | min | max |
 | --------- | --- | --- |
