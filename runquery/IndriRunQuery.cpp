@@ -430,6 +430,13 @@ private:
       }
     }
     //
+    // do full dependence
+    //
+    if (order < 0){
+      order = tokens.size();
+    }
+    
+    //
     // 2. build the dm
     //
     std::stringstream ss_sd_uw;
