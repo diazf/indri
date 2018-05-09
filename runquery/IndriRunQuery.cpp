@@ -295,6 +295,17 @@ as <tt>-fbOrigWeight=number</tt> on the command line.</dd>
 //
 // just breaks on non-alphanumeric
 //
+std::string _normalize(std::string s){
+  std::string s_normalized = "";
+  for (int i = 0 ; i < s.size() ;i++){
+    if (isalnum(s[i])!=0){
+      s_normalized.push_back(s[i]);
+    }else{
+      s_normalized.push_back(' ');
+    }
+  }
+  return s_normalized;
+}
 int tokenize(std::vector < std::string > &fields, std::string s){
   std::string token = "";
   fields.clear();
@@ -478,7 +489,7 @@ private:
 			std::vector<lemur::api::DOCID_T> workingSetDocids;
 			std::vector<indri::api::ScoredExtentResult> scoredWorkingSet;
       
-      std::string query = originalQuery;
+      std::string query = _normalize(originalQuery);
       //
       // -1. dependence model
       //

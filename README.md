@@ -57,7 +57,48 @@ IndriRunQuery -index=/path/to/index -query="hello world" -dm=order:1,rerank:100
 
 Dependence models are built after internally stopping and stemming the query terms.
 
+## Baseline Cheatsheet 
 
+Here's a simple cheatsheet for good baselines for your text retrieval experiments.  I'm assuming that you are evaluating on a target corpus (e.g. Associated Press documents) and might either train your model with documents from the target corpus or from some large external corpus (e.g. Gigaword).  You also might incorporate term proximity or other linear linear term relationships (e.g. n- or skip-grams).  
+
+<table style="text-align:center">
+  <tr>
+    <td></td>
+    <td colspan="3">training corpus</td>
+  </tr>
+  <tr>
+		<td>proximity</td>
+		<td>none</td>
+		<td>target</td>
+		<td>external</td>		
+  </tr>
+  <tr>
+		<td>no</td>
+		<td>QL</td>
+		<td>RM3</td>
+		<td>EE</td>		
+  </tr>
+  <tr>
+		<td>yes</td>
+		<td>DM</td>
+		<td>DM+RM3</td>
+		<td>DM+EE</td>		
+  </tr>
+</table>
+
+For each of these conditions, you should train model parameters on the same training set you're using for your model.  For RM3/EE, good ranges are,
+
+| parameter | min | max |
+| --------- | --- | --- |
+| fbDocs | 5 | 500 |
+| fbTerms | 5 | 500 |
+| fbOrigWeight | 0 | 1 |
+
+Don's original DM weights seem to be robust across conditions but you may still want to play with the parameters above.  
+
+If you find DM/RM3/EE to be slow, instead of limiting the parameter ranges, you should opt for the condensed list approaches of the methods.  In general, you can rerank 1000 documents from a QL initial retrieval and preserving rank-equivalence with re-retrieval, especially at the top of the final ranking.  
+
+If you are not sure where your model fits in the cheatsheet above, a strong baseline is DM+EE.  
 
 ## Citation 
 
