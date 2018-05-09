@@ -18,14 +18,21 @@ Added order-`k` [dependence models](https://doi.org/10.1145/1076034.1076115).  O
 
 This implementation also includes condensed list dependence models which, like condensed list relevance models, first conduct a query likelihood retrieval and then rerank the results using the dependence model.  This can substantially improve speed, especially for longer queries.  
 
-| DM parameter | type | description |
-| ------------ | ---- | ----------- |
-| order | int | dependence model order |
-| combineWeight | float | weight for combine subquery |
-| owWeight | float | weight for ordered window subquery |
-| uwWeight | float | weight for unordered window subquery |
-| uwSize | int | unordered window size |
-| rerankSize | int | number of query likelihood results to rerank |
+| parameter | type | default | description |
+| --------- | ---- | ------- | ----------- |
+| order | int | 1 | dependence model order |
+| combineWeight | float | 0.85 | weight for combine subquery |
+| owWeight | float | 0.10 | weight for ordered window subquery |
+| uwWeight | float | 0.05 | weight for unordered window subquery |
+| uwSize | int | 8 | unordered window size |
+| rerankSize | int | 0 | number of query likelihood results to rerank (0=retrieve) |
+
+Defaults are used only if order is greater than 0.
+
+For example, to run a classic SDM reranking of a length 100 query likelihood initial retrieval,
+```
+IndriRunQuery -index=/path/to/index -query="hello world" -dm=order:1,rerank:100
+```
 
 Dependence models are built by internally stopping and stemming the query terms.
 
