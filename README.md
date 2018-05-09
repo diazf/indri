@@ -96,7 +96,7 @@ For whatever the appropriate baseline is for your experiment, you should train t
 
 Don's original DM weights seem to be robust across conditions but you may still want to play with the parameters above.  
 
-If you find DM/RM3/EE slow, instead of limiting the parameter ranges, you should opt for the condensed list approaches of the methods.  In general, you can rerank 1000 documents from a QL initial retrieval and preserve rank-equivalence with re-retrieval, especially at the top of the final ranking.  
+If you find DM/RM3/EE slow, instead of limiting the parameter ranges, you should opt for the condensed list versions of the methods.  In general, you can rerank 1000 documents from a QL initial retrieval and preserve rank-equivalence with re-retrieval, especially at the top of the final ranking.  
 
 If you are not sure where your model fits in the cheatsheet above, a strong baseline is DM+EE.  
 
