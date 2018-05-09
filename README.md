@@ -14,7 +14,7 @@ Added a few lines of code to `IndriRunQuery` to support  [External Expansion](ht
 
 ### Dependence Models
 
-Added order-`k` [dependence models](https://doi.org/10.1145/1076034.1076115).  Order `k=1` dependence models are the classic sequential dependence model.  Order `k` computes the dependences between all query terms within a `k` word window.  Order `k=-1` are the classic full dependence model.  
+Added order-`k` [dependence models](https://doi.org/10.1145/1076034.1076115).  Order `k=1` dependence models are the classic sequential dependence model.  Order `k` computes the dependences between all query terms within a `k` word window.  Order `k=-1` is the classic full dependence model.  
 
 This implementation also includes condensed list dependence models which, like condensed list relevance models, first conduct a query likelihood retrieval and then rerank the results using the dependence model.  This can substantially improve speed, especially for longer queries.  
 
