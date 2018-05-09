@@ -34,7 +34,7 @@ For example, to run a classic SDM reranking of a length 100 query likelihood ini
 IndriRunQuery -index=/path/to/index -query="hello world" -dm=order:1,rerank:100
 ```
 
-Dependence models are built by internally stopping and stemming the query terms.
+Dependence models are built after internally stopping and stemming the query terms.
 
 
 
