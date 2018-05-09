@@ -7,7 +7,7 @@ LIBS=-lindri $(patsubst %, -l%, $(DEPENDENCIES))
 APP=IndriRunQuery
 
 all:
-	$(CXX) $(CXXFLAGS) $(APP).cpp -o $(APP) $(LIBPATH) $(LIBS) $(CPPLDFLAGS)
+	$(CXX) -g $(CXXFLAGS) $(APP).cpp -o $(APP) $(LIBPATH) $(LIBS) $(CPPLDFLAGS)
 
 install:
 	$(INSTALL_PROGRAM) $(APP) $(bindir)

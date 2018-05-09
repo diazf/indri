@@ -87,8 +87,8 @@ namespace indri
       dictTable::iterator it = dictEntries.find(variant);
       if (it != dictEntries.end()) {
         // duplicate.
-        std::cerr << "kstem_add_table_entry: Duplicate word "
-                  << variant << " will be ignored." << std::endl;
+        // std::cerr << "kstem_add_table_entry: Duplicate word "
+        //           << variant << " will be ignored." << std::endl;
         return;
       }
       dictEntry entry;

@@ -288,6 +288,42 @@ as <tt>-fbOrigWeight=number</tt> on the command line.</dd>
 
 #include <queue>
 
+#include "indri/HashSet.hpp"
+
+#include <sstream>
+
+//
+// just breaks on non-alphanumeric
+//
+int tokenize(std::vector < std::string > &fields, std::string s){
+  std::string token = "";
+  fields.clear();
+  for (int i = 0 ; i < s.size() ;i++){
+    if (isalnum(s[i])==0){
+      if (token.size()>0) {
+        fields.push_back(token);
+        token.clear();
+      }
+    }else{
+      token+=s[i];
+    }
+  }
+  if (token.size()>0) {
+    fields.push_back(token);
+    token.clear();
+  }
+  return fields.size();
+}
+int split(std::vector < std::string > &fields, std::string haystack, char delim = ','){
+  for (std::string::size_type needle = haystack.find(delim); needle != std::string::npos ; needle = haystack.find(delim)){
+    std::string field = haystack.substr(0, needle);
+    if (field.size()>0) fields.push_back(field);
+    haystack = haystack.substr(needle+1);
+  }
+  if (haystack.size() > 0) fields.push_back(haystack);
+  return fields.size();
+}
+
 static bool copy_parameters_to_string_vector( std::vector<std::string>& vec, indri::api::Parameters p, const std::string& parameterName ) {
 	if( !p.exists(parameterName) )
 		return false;
@@ -348,6 +384,8 @@ private:
 	int _rerankSize;
 	bool _externalExpansion;
 
+  indri::utility::HashSet _stopwords;
+  
 	bool _printDocuments;
 	bool _printPassages;
 	bool _printSnippets;
@@ -360,14 +398,96 @@ private:
 	indri::query::QueryExpander* _expander;
 	std::vector<indri::api::ScoredExtentResult> _results;
 	indri::api::QueryAnnotation* _annotation;
+  
+  //
+  // DM parameters
+  //
+  struct {
+    int order ;
+    double combineWeight;
+    double owWeight;
+    double uwWeight;
+    int uwSize;
+    int rerankSize;
+  } _dm;
+  
+  bool _isStopword(std::string s){
+    return (_stopwords.find((char *)s.c_str()) != _stopwords.end());
+  }
+  
+  std::string _dependenceModel(std::string &query, int order = 1, double combineWeight = 0.85, double owWeight = 0.10, double uwWeight = 0.05, int uwSize = 8){
+    std::vector < std::string > rawTokens;
+    tokenize(rawTokens,query);
+    if (rawTokens.size() < 2) return query;
+    //
+    // 1. stop and stem 
+    //
+    std::vector < std::string > tokens;
+    for (int i = 0 ; i < rawTokens.size() ; i++){
+      std::string stem = _environment.stemTerm(rawTokens[i]);
+      if ((stem != "")&&(!_isStopword(stem))){
+        tokens.push_back(stem);
+      }
+    }
+    //
+    // 2. build the dm
+    //
+    std::stringstream ss_sd_uw;
+    std::stringstream ss_sd_ow;
+    std::stringstream ss_fd_uw;
+    std::stringstream ss_fd_ow;
+    for (int i = 0 ; i < tokens.size() ; i++){
+      std::string term_i = tokens[i];
+      for (int j = 1 ; j <= order ; j++){
+        int offset = i+j;
+        if ((offset >= 0)&&(offset<tokens.size())){
+          std::string term_j = tokens[offset];
+          std::string gram = term_i + " " + term_j ;  
+          if (offset==1){
+            ss_sd_ow << " #1( " << gram << ") ";
+            ss_sd_uw << " #uw"<<uwSize<<"( " << gram << ") ";
+          }else{
+            ss_fd_ow << " #1( " << gram << ") ";
+            ss_fd_uw << " #uw"<<uwSize<<"( " << gram << ") ";
+          }
+        }        
+      }
+    }
+    //
+    // format
+    //
+    std::stringstream retvalStr;
+    retvalStr << "#weight( ";
+    retvalStr << combineWeight << " #combine( " << query << " ) ";
+    retvalStr << owWeight << " #combine( " << ss_sd_ow.str() << " "<< ss_fd_ow.str() << " ) ";
+    retvalStr << uwWeight << " #combine( " << ss_sd_uw.str() << " "<< ss_fd_uw.str() << " ) ";
+    retvalStr << " ) ";
+    return retvalStr.str();
+  }
 
-	void _runQuery( std::stringstream& output, const std::string& query,
+	void _runQuery( std::stringstream& output, const std::string& originalQuery,
 	const std::string &queryType, const std::vector<std::string> &workingSet, std::vector<std::string> relFBDocs ) {
 		try {
-			if( _printQuery ) output << "# query: " << query << std::endl;
-			
 			std::vector<lemur::api::DOCID_T> workingSetDocids;
 			std::vector<indri::api::ScoredExtentResult> scoredWorkingSet;
+      
+      std::string query = originalQuery;
+      //
+      // -1. dependence model
+      //
+      if (_dm.order != 0){
+        query = _dependenceModel(query, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize);
+        if (_dm.rerankSize > 0){
+          scoredWorkingSet = _environment.runQuery( originalQuery, _dm.rerankSize, queryType );
+          for (int i = 0 ; i < scoredWorkingSet.size() ; i++){
+            workingSetDocids.push_back(scoredWorkingSet[i].document);
+          }
+  				scoredWorkingSet = _environment.runQuery( query, workingSetDocids, _dm.rerankSize, queryType );
+        }
+      }
+      
+			if( _printQuery ) output << "# query: " << query << std::endl;
+			
 			
 			//
 			// 0. build working set if explicit docids or derive from initial retrieval
@@ -379,7 +499,7 @@ private:
 				workingSetDocids = _environment.documentIDsFromMetadata("docno", workingSet);
 				scoredWorkingSet = _environment.runQuery( query, workingSetDocids, workingSet.size(), queryType );
 			}
-			if (_rerankSize > 0){
+			if ((_rerankSize > 0) && (_dm.rerankSize == 0)){
 				//
 				// 0.b. build working set from initial retrieval
 				//
@@ -601,6 +721,9 @@ public:
 			if( copy_parameters_to_string_vector( stopwords, _parameters, "stopper.word" ) ){
 				_environment.setStopwords(stopwords);
 				_externalEnvironment.setStopwords(stopwords);
+        for (int i = 0 ; i < stopwords.size() ; i++){
+          _stopwords.insert(strdup(((std::string) stopwords[i] ).c_str()));
+        }
 			}
 
 			std::vector<std::string> smoothingRules;
@@ -683,6 +806,45 @@ public:
 					}
 				}
 			}
+      
+      if (_parameters.exists("dm")){
+        //
+        // initialize to sdm
+        //
+        _dm.combineWeight = 0.85;
+        _dm.uwWeight = 0.10;
+        _dm.owWeight = 0.05;
+        _dm.uwSize = 8;
+        _dm.order = 1;
+        _dm.rerankSize = 0;
+        std::string dmParameters = _parameters["dm"];        
+  			std::vector<std::string> fields;
+        split(fields,dmParameters,',');
+        for (int i = 0 ; i < fields.size() ; i++){
+    			std::vector<std::string> kv;
+          split(kv,fields[i],':');
+          if (kv[0] == "order"){
+            _dm.order = atoi(kv[1].c_str());
+          }else if (kv[0] == "combineWeight"){
+            _dm.combineWeight = atof(kv[1].c_str());
+          }else if (kv[0] == "uwWeight"){
+            _dm.uwWeight = atof(kv[1].c_str());
+          }else if (kv[0] == "owWeight"){
+            _dm.owWeight = atof(kv[1].c_str());
+          }else if (kv[0] == "uwSize"){
+            _dm.uwSize = atof(kv[1].c_str());
+          }else if (kv[0] == "rerank"){
+            _dm.rerankSize = atoi(kv[1].c_str());
+          }
+        }        
+      }else{
+        _dm.combineWeight = 1.0;
+        _dm.uwWeight = 0.0;
+        _dm.owWeight = 0.0;
+        _dm.uwSize = 0;
+        _dm.order = 0;
+        _dm.rerankSize = 0;
+      }
 
 			if (_parameters.exists("maxWildcardTerms")) {
 				_environment.setMaxWildcardTerms((int)_parameters.get("maxWildcardTerms"));
