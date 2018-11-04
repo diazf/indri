@@ -114,7 +114,8 @@ Use the standard indri citation,
 author = {Trevor Strohman and Donald Metzler and Howard Turtle and W. B. Croft},
 booktitle = {Proceedings of the International Conference on Intelligence Analysis},
 title = {Indri: A language model-based search engine for complex queries},
-year = {2004}}
+year = {2004}
+}
 ```
 as well as the following for reproducibility,
 ```
