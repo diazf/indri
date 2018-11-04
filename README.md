@@ -111,10 +111,10 @@ If you are not sure where your model fits in the cheatsheet above, a strong base
 Use the standard indri citation,
 ```
 @inproceedings{strohman:indri,
-	Author = {Trevor Strohman and Donald Metzler and Howard Turtle and W. B. Croft},
-	Booktitle = {Proceedings of the International Conference on Intelligence Analysis},
-	Title = {Indri: A language model-based search engine for complex queries},
-	Year = {2004}}
+author = {Trevor Strohman and Donald Metzler and Howard Turtle and W. B. Croft},
+booktitle = {Proceedings of the International Conference on Intelligence Analysis},
+title = {Indri: A language model-based search engine for complex queries},
+year = {2004}}
 ```
 as well as the following for reproducibility,
 ```
