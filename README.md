@@ -108,7 +108,24 @@ If you are not sure where your model fits in the cheatsheet above, a strong base
 
 ## Citation 
 
-Use the standard indri citation and  references to whatever algorithms above you are using.  Link to the code for reproducibility.   
+Use the standard indri citation,
+```
+@inproceedings{strohman:indri,
+	Author = {Trevor Strohman and Donald Metzler and Howard Turtle and W. B. Croft},
+	Booktitle = {Proceedings of the International Conference on Intelligence Analysis},
+	Title = {Indri: A language model-based search engine for complex queries},
+	Year = {2004}}
+```
+as well as the following for reproducibility,
+```
+@online{diaz:indri,
+author = {Fernando Diaz},
+title = {indri},
+year = {2018},
+url = {https://github.com/diazf/indri}
+}
+```
+and references to any specific algorithms above you are using.
 
 ## Notes
 
