@@ -404,6 +404,7 @@ private:
 
 	std::string _runID;
 	bool _trecFormat;
+	bool _expandOnly;
 	bool _inexFormat;
 
 	indri::query::QueryExpander* _expander;
@@ -578,17 +579,21 @@ private:
 			//
 			// 2.b. score w expandedQuery
 			//
-			if( _printQuery ) output << "# expanded: " << expandedQuery << std::endl;
-			if (workingSetDocids.size() > 0) {
-				//
-				// 2.b.1. rerank docids
-				//
-				_results = _environment.runQuery( expandedQuery, workingSetDocids, _requested, queryType );
-			} else {
-				//
-				// 2.b.2. run full expanded retrieval
-				//
-				_results = _environment.runQuery( expandedQuery, _requested, queryType );              
+			if ( _expandOnly ){
+				output << expandedQuery << std::endl;				
+			}else{
+				if( _printQuery ) output << "# expanded: " << expandedQuery << std::endl;
+				if (workingSetDocids.size() > 0) {
+					//
+					// 2.b.1. rerank docids
+					//
+					_results = _environment.runQuery( expandedQuery, workingSetDocids, _requested, queryType );
+				} else {
+					//
+					// 2.b.2. run full expanded retrieval
+					//
+					_results = _environment.runQuery( expandedQuery, _requested, queryType );              
+				}
 			}
 			return;
 		}
@@ -798,6 +803,8 @@ public:
 			_trecFormat = _parameters.get( "trecFormat" , false );
 			_inexFormat = _parameters.exists( "inex" );
 
+			_expandOnly = _parameters.get( "expandOnly" , false );
+
 			_printQuery = _parameters.get( "printQuery", false );
 			_printDocuments = _parameters.get( "printDocuments", false );
 			_printPassages = _parameters.get( "printPassages", false );
@@ -916,7 +923,9 @@ public:
 		}
 
 		// print the results to the output stream
-		_printResults( output, query->number );
+		if ( !_expandOnly ) {
+			_printResults( output, query->number );
+		}
 
 		// push that data into an output queue...?
 		{
