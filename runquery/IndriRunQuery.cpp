@@ -580,6 +580,14 @@ private:
 			// 2.b. score w expandedQuery
 			//
 			if ( _expandOnly ){
+			  std::size_t found = expandedQuery.find("#weight(  ");
+			  if (found!=std::string::npos){
+			  	expandedQuery.erase(0,found+10);
+			  }
+			  found = expandedQuery.find("  ) )");
+			  if (found!=std::string::npos){
+			  	expandedQuery.erase(found);
+			  }				
 				output << expandedQuery << std::endl;				
 			}else{
 				if( _printQuery ) output << "# expanded: " << expandedQuery << std::endl;
@@ -910,6 +918,10 @@ public:
 			} else {
 				return 0;
 			}
+		}
+
+		if ( _expandOnly ) {
+			output << query->number << "\t";
 		}
 
 		// run the query
