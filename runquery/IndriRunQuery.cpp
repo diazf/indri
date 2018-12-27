@@ -500,27 +500,27 @@ private:
 			std::vector<indri::api::ScoredExtentResult> scoredWorkingSet;
       
       std::string query = _normalize(originalQuery);
+			std::string flatQuery = query;
+		  std::stringstream indriQuery;
+  		indriQuery << "#combine";
+    	if (_passageLength > 0){
+				indriQuery << "[passage" << _passageLength << ":" << _passageOverlap << "]";					
+    	}
+			indriQuery << "( " << query << " )";
+			query = indriQuery.str();
+			
       //
       // -1. dependence model
       //
       if (_dm.order != 0){
-				std::string flatQuery = query;
         query = _dependenceModel(flatQuery, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize);
         if (_dm.rerankSize > 0){
-          scoredWorkingSet = _environment.runQuery( flatQuery, _dm.rerankSize, queryType );
+          scoredWorkingSet = _environment.runQuery( query, _dm.rerankSize, queryType );
           for (int i = 0 ; i < scoredWorkingSet.size() ; i++){
             workingSetDocids.push_back(scoredWorkingSet[i].document);
           }
   				scoredWorkingSet = _environment.runQuery( query, workingSetDocids, _dm.rerankSize, queryType );
         }
-      }else{
-			  std::stringstream indriQuery;
-    		indriQuery << "#combine";
-      	if (_passageLength > 0){
-					indriQuery << "[passage" << _passageLength << ":" << _passageOverlap << "]";					
-      	}
-				indriQuery << "( " << query << " )";
-				query = indriQuery.str();
       }
       
 			if( _printQuery ) output << "# query: " << query << std::endl;
