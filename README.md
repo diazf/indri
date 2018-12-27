@@ -59,7 +59,7 @@ IndriRunQuery -index=/path/to/index -query="hello world" -dm=order:1,rerank:100
 
 Dependence models are built after internally stopping and stemming the query terms.
 
-### [Passage Retrieval]
+### Passage Retrieval
 
 | parameter | type | default | description |
 | --------- | ---- | :-------: | ----------- |
