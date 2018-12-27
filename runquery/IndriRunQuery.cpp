@@ -393,6 +393,7 @@ private:
 	int _initialRequested;
 
 	int _rerankSize;
+	bool _fbRankDocuments;
 	bool _externalExpansion;
 
   indri::utility::HashSet _stopwords;
@@ -406,6 +407,10 @@ private:
 	bool _trecFormat;
 	bool _expandOnly;
 	bool _inexFormat;
+
+	int _passageLength ;
+	int _passageOverlap ;
+
 
 	indri::query::QueryExpander* _expander;
 	std::vector<indri::api::ScoredExtentResult> _results;
@@ -476,7 +481,11 @@ private:
     // format
     //
     std::stringstream retvalStr;
-    retvalStr << "#weight( ";
+    retvalStr << "#weight";
+  	if (_passageLength > 0){
+			retvalStr << "[passage" << _passageLength << ":" << _passageOverlap << "]";					
+  	}
+		retvalStr << "( ";
     retvalStr << combineWeight << " #combine( " << query << " ) ";
     retvalStr << owWeight << " #combine( " << ss_sd_ow.str() << " "<< ss_fd_ow.str() << " ) ";
     retvalStr << uwWeight << " #combine( " << ss_sd_uw.str() << " "<< ss_fd_uw.str() << " ) ";
@@ -495,14 +504,23 @@ private:
       // -1. dependence model
       //
       if (_dm.order != 0){
-        query = _dependenceModel(query, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize);
+				std::string flatQuery = query;
+        query = _dependenceModel(flatQuery, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize);
         if (_dm.rerankSize > 0){
-          scoredWorkingSet = _environment.runQuery( originalQuery, _dm.rerankSize, queryType );
+          scoredWorkingSet = _environment.runQuery( flatQuery, _dm.rerankSize, queryType );
           for (int i = 0 ; i < scoredWorkingSet.size() ; i++){
             workingSetDocids.push_back(scoredWorkingSet[i].document);
           }
   				scoredWorkingSet = _environment.runQuery( query, workingSetDocids, _dm.rerankSize, queryType );
         }
+      }else{
+			  std::stringstream indriQuery;
+    		indriQuery << "#combine";
+      	if (_passageLength > 0){
+					indriQuery << "[passage" << _passageLength << ":" << _passageOverlap << "]";					
+      	}
+				indriQuery << "( " << query << " )";
+				query = indriQuery.str();
       }
       
 			if( _printQuery ) output << "# query: " << query << std::endl;
@@ -590,6 +608,11 @@ private:
 			  }				
 				output << expandedQuery << std::endl;				
 			}else{
+				if((_passageLength > 0)&&(_fbRankDocuments)){
+					for (int extentItr = expandedQuery.find('['); expandedQuery[extentItr] != '(' ; ){
+						expandedQuery.erase(expandedQuery.begin() + extentItr);
+					}
+				}
 				if( _printQuery ) output << "# expanded: " << expandedQuery << std::endl;
 				if (workingSetDocids.size() > 0) {
 					//
@@ -807,6 +830,7 @@ public:
 			_requested = _parameters.get( "count", 1000 );
 			_initialRequested = _parameters.get( "fbDocs", _requested );
 			_rerankSize = _parameters.get( "rerankSize", 0 );
+			_fbRankDocuments = _parameters.get( "fbRankDocuments", false );
 			_runID = _parameters.get( "runID", "indri" );
 			_trecFormat = _parameters.get( "trecFormat" , false );
 			_inexFormat = _parameters.exists( "inex" );
@@ -817,6 +841,10 @@ public:
 			_printDocuments = _parameters.get( "printDocuments", false );
 			_printPassages = _parameters.get( "printPassages", false );
 			_printSnippets = _parameters.get( "printSnippets", false );
+			
+			_passageLength = _parameters.get( "passageLength", 0 );
+			_passageOverlap = _parameters.get( "passageOverlap", 0 );
+			
 
 			if (_parameters.exists("baseline")) {
 				// doing a baseline

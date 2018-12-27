@@ -7,6 +7,8 @@ This is a clone of Indri 5.12 with minor customizations.
 
 Unless noted, all parameters are thrown on the command line just like other IndriRunQuery parameters. 
 
+***NB. Input queries are assumed to be natural language, not Indri query language.***
+
 ### [Condensed List Relevance Models](https://dl.acm.org/citation.cfm?id=2808194.2809491)
 
 | parameter | type | default | description |
@@ -19,7 +21,7 @@ Using condensed list relevance models can substantially improve speed without de
 
 | parameter | type | default | description |
 | --------- | ---- | :-------: | ----------- |
-| externalIndex | path | NONE | RM is built from an initial query likelihood retrieval from externalIndex.  |
+| externalIndex | path | NONE | RM is built from an initial query likelihood retrieval from `externalIndex`.  |
 
 Using external expansion with a large external index can substantially improve effectiveness of query expansion.  This can be combined with condensed list relevance models (from the target corpus) if you are concerned about speed.  
 
@@ -56,6 +58,17 @@ IndriRunQuery -index=/path/to/index -query="hello world" -dm=order:1,rerank:100
 ```
 
 Dependence models are built after internally stopping and stemming the query terms.
+
+### [Passage Retrieval]
+
+| parameter | type | default | description |
+| --------- | ---- | :-------: | ----------- |
+| passageLength | int | 0 | length of passages to retrieve.  |
+| passageOverlap | int | 0 | passage overlap.  |
+| fbRankDocuments | bool | false | used in conjunction with `passageLength` > 0 and PRF for document ranking based on [passage RMs](https://dl.acm.org/citation.cfm?id=584854).  |
+
+
+
 
 ## Baseline Cheatsheet 
 
