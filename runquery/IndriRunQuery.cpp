@@ -457,7 +457,6 @@ private:
   std::string _dependenceModel(std::string &query, int order = 1, double combineWeight = 0.85, double owWeight = 0.10, double uwWeight = 0.05, int uwSize = 8){
     std::vector < std::string > rawTokens;
     tokenize(rawTokens,query);
-    if (rawTokens.size() < 2) return query;
     //
     // 1. stop and stem 
     //
@@ -468,6 +467,17 @@ private:
         tokens.push_back(stem);
       }
     }
+		if (tokens.size() < 2){
+	    std::stringstream retvalStr;
+	    retvalStr << "#combine";
+	  	if (_passageLength > 0){
+				retvalStr << "[passage" << _passageLength << ":" << _passageOverlap << "]";					
+	  	}
+			retvalStr << "( ";
+	    retvalStr << query;
+	    retvalStr << " ) ";
+			return retvalStr.str();
+		}
     //
     // do full dependence
     //
