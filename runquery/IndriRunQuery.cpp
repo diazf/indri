@@ -428,6 +428,28 @@ private:
     int rerankSize;
   } _dm;
   
+  //
+  // RM parameters
+  //
+  struct {
+		int passageLength;
+		int passageOverlap;
+		int fbDocs;
+		int fbTerms;
+		double fbOrigWeight;
+		bool targetPassages;
+		int condensed;
+		
+	  struct {
+	    int order ;
+	    double combineWeight;
+	    double owWeight;
+	    double uwWeight;
+	    int uwSize;
+	    int rerankSize;
+	  } dm;
+  } _rmParameters;
+
   bool _isStopword(std::string s){
     return (_stopwords.find((char *)s.c_str()) != _stopwords.end());
   }
@@ -492,7 +514,134 @@ private:
     retvalStr << " ) ";
     return retvalStr.str();
   }
-
+	std::vector<indri::api::ScoredExtentResult> 
+	_rmInitial( const std::string& originalQuery, 
+							std::string &query, 
+							const std::string &queryType, 
+							indri::api::QueryEnvironment *env,
+							const std::vector<std::string> &workingSet ) {
+		try{
+			std::vector<lemur::api::DOCID_T> workingSetDocids;
+			std::vector<indri::api::ScoredExtentResult> scoredWorkingSet;
+			//
+			// 0. build flat query
+			//
+      query = _normalize(originalQuery);
+			std::string flatQuery = query;
+		  std::stringstream indriQuery;
+  		indriQuery << "#combine";
+    	if (_rmParameters.passageLength > 0){
+				indriQuery << "[passage" << _rmParameters.passageLength << ":" << _rmParameters.passageOverlap << "]";					
+    	}
+			indriQuery << "( " << query << " )";
+			query = indriQuery.str();
+			//
+			// 1. dm
+			//
+      if (_rmParameters.dm.order != 0){
+        query = _dependenceModel(flatQuery, _rmParameters.dm.order, _rmParameters.dm.combineWeight, _rmParameters.dm.owWeight, _rmParameters.dm.uwWeight, _rmParameters.dm.uwSize);
+        if (_rmParameters.dm.rerankSize > 0){
+					//
+					// rerank the flat query results
+					//
+					scoredWorkingSet = env->runQuery( flatQuery, _rmParameters.dm.rerankSize, queryType );
+          for (int i = 0 ; i < scoredWorkingSet.size() ; i++){
+            workingSetDocids.push_back(scoredWorkingSet[i].document);
+          }
+					return env->runQuery( query, workingSetDocids, workingSetDocids.size(), queryType );
+        }
+			}
+			if (workingSet.size()>0){
+				//
+				// rerank working set
+				//
+				workingSetDocids = env->documentIDsFromMetadata("docno", workingSet);
+      	return env->runQuery( query, workingSetDocids, workingSetDocids.size(), queryType );
+      }else{
+				//
+				// retrieve
+				//
+				return env->runQuery( query, _requested, queryType );
+      }
+		}catch( lemur::api::Exception& e ){
+			_results.clear();
+			LEMUR_RETHROW(e, "QueryThread::_rmInitial Exception");
+		}
+	}
+	std::vector<indri::api::ScoredExtentResult> 
+	_rmFinal( const std::string &expandedQuery, 
+						const std::string &queryType, 
+						indri::api::QueryEnvironment *env,
+						const std::vector<lemur::api::DOCID_T> &workingSetDocids ) {
+		try{
+			if (workingSetDocids.size() > 0) {
+				//
+				// 1. rerank working set
+				//
+				return env->runQuery( expandedQuery, workingSetDocids, _requested, queryType );
+			} else {
+				//
+				// 2. run full expanded retrieval
+				//
+				return env->runQuery( expandedQuery, _requested, queryType );              
+			}
+		}catch( lemur::api::Exception& e ){
+			_results.clear();
+			LEMUR_RETHROW(e, "QueryThread::_rmFinal Exception");
+		}
+	}
+	void _runRM( std::stringstream& output, const std::string& originalQuery,
+	const std::string &queryType, const std::vector<std::string> &workingSet, std::vector<std::string> relFBDocs ) {
+		//
+		// 1. initial retrieval 
+		//
+		indri::api::QueryEnvironment *env = NULL;		
+		std::string query="";
+		if (_externalExpansion){
+			env = &_externalEnvironment;
+		}else{
+			env = &_environment;
+		}
+		std::vector<indri::api::ScoredExtentResult> initialRetrieval = _rmInitial(originalQuery, query, queryType, env, workingSet);
+		//
+		// 2. estimate rm
+		//
+		std::vector<indri::api::ScoredExtentResult> initialRetrievalCut(initialRetrieval.begin(), initialRetrieval.begin() + _rmParameters.fbDocs);
+		std::string expandedQuery = _expander->expand( query, initialRetrievalCut );     
+		if((_rmParameters.passageLength > 0)&&(!_rmParameters.targetPassages)){
+			for (int extentItr = expandedQuery.find('['); expandedQuery[extentItr] != '(' ; ){
+				expandedQuery.erase(expandedQuery.begin() + extentItr);
+			}
+		}
+		         
+		//
+		// 3. 
+		//
+		std::vector<lemur::api::DOCID_T> workingSetDocids;		
+		env = &_environment;
+		if (workingSet.size() > 0){
+			workingSetDocids = env->documentIDsFromMetadata("docno", workingSet);
+		}else if (_rmParameters.condensed>0){
+			if ((_externalExpansion)||(_rmParameters.condensed > initialRetrieval.size())){
+				std::vector<indri::api::ScoredExtentResult> condensedList = env->runQuery( _normalize(originalQuery), _rmParameters.condensed, queryType );
+	      for (int i = 0 ; i < condensedList.size() ; i++){
+					lemur::api::DOCID_T did = condensedList[i].document;
+	        workingSetDocids.push_back(did);
+	      }
+			}else{
+				
+	      for (int i = 0 ; (i < initialRetrieval.size())&&(workingSetDocids.size()<_rmParameters.condensed) ; i++){
+					lemur::api::DOCID_T did = initialRetrieval[i].document;
+					std::vector<lemur::api::DOCID_T>::iterator itr = std::find (workingSetDocids.begin(), workingSetDocids.end(), did);
+					if (itr == workingSetDocids.end()){
+		        workingSetDocids.push_back(did);
+					}
+	      }
+			}
+		}
+		
+		_results = _rmFinal(expandedQuery, queryType, env, workingSetDocids);
+	}
 	void _runQuery( std::stringstream& output, const std::string& originalQuery,
 	const std::string &queryType, const std::vector<std::string> &workingSet, std::vector<std::string> relFBDocs ) {
 		try {
@@ -515,7 +664,7 @@ private:
       if (_dm.order != 0){
         query = _dependenceModel(flatQuery, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize);
         if (_dm.rerankSize > 0){
-          scoredWorkingSet = _environment.runQuery( query, _dm.rerankSize, queryType );
+          scoredWorkingSet = _environment.runQuery( flatQuery, _dm.rerankSize, queryType );
           for (int i = 0 ; i < scoredWorkingSet.size() ; i++){
             workingSetDocids.push_back(scoredWorkingSet[i].document);
           }
@@ -897,7 +1046,7 @@ public:
           }else if (kv[0] == "rerank"){
             _dm.rerankSize = atoi(kv[1].c_str());
           }
-        }        
+        }
       }else{
         _dm.combineWeight = 1.0;
         _dm.uwWeight = 0.0;
@@ -906,7 +1055,82 @@ public:
         _dm.order = 0;
         _dm.rerankSize = 0;
       }
-
+      if (_parameters.exists("rm")){
+				_rmParameters.passageLength = 0;
+				_rmParameters.passageOverlap = 0;
+				_rmParameters.fbDocs = 0;
+				_rmParameters.fbTerms = 0;
+				_rmParameters.fbOrigWeight = 0.0;
+				_rmParameters.targetPassages = false;
+				_rmParameters.condensed = 0;
+				_rmParameters.dm.combineWeight = 0.85;
+        _rmParameters.dm.owWeight = 0.10;
+        _rmParameters.dm.uwWeight = 0.05;
+        _rmParameters.dm.uwSize = 8;
+        _rmParameters.dm.order = 1;
+        _rmParameters.dm.rerankSize = 0;
+				
+        std::string rmParameters = _parameters["rm"];        
+  			std::vector<std::string> fields;
+        split(fields,rmParameters,',');
+        for (int i = 0 ; i < fields.size() ; i++){
+    			std::vector<std::string> kv;
+          split(kv,fields[i],':');
+					if (kv[0] == "passageLength"){
+            _rmParameters.passageLength = atoi(kv[1].c_str());
+					}else if (kv[0] == "passageOverlap"){
+            _rmParameters.passageOverlap = atoi(kv[1].c_str());
+					}else if (kv[0] == "fbDocs"){
+            _rmParameters.fbDocs = atoi(kv[1].c_str());
+					}else if (kv[0] == "fbTerms"){
+            _rmParameters.fbTerms = atoi(kv[1].c_str());
+					}else if (kv[0] == "fbOrigWeight"){
+            _rmParameters.fbOrigWeight = atof(kv[1].c_str());
+					}else if (kv[0] == "targetPassages"){
+            _rmParameters.targetPassages = atoi(kv[1].c_str());
+					}else if (kv[0] == "condensed"){
+            _rmParameters.condensed = atoi(kv[1].c_str());
+					}else if (kv[0] == "dm.order"){
+            _rmParameters.dm.order = atoi(kv[1].c_str());
+          }else if (kv[0] == "dm.combineWeight"){
+            _rmParameters.dm.combineWeight = atof(kv[1].c_str());
+          }else if (kv[0] == "dm.uwWeight"){
+            _rmParameters.dm.uwWeight = atof(kv[1].c_str());
+          }else if (kv[0] == "dm.owWeight"){
+            _rmParameters.dm.owWeight = atof(kv[1].c_str());
+          }else if (kv[0] == "dm.uwSize"){
+            _rmParameters.dm.uwSize = atof(kv[1].c_str());
+          }else if (kv[0] == "dm.rerank"){
+            _rmParameters.dm.rerankSize = atoi(kv[1].c_str());
+          }
+        }
+				_parameters.set("fbDocs", _rmParameters.fbDocs);
+				_parameters.set("fbTerms", _rmParameters.fbTerms);
+				_parameters.set("fbOrigWeight", _rmParameters.fbOrigWeight);
+				
+				if (_rmParameters.fbDocs>0){
+					if (externalIndices) {
+						_externalExpansion = true;
+						_expander = new indri::query::RMExpander( &_externalEnvironment, _parameters, &_environment);
+					}else{
+						_expander = new indri::query::RMExpander( &_environment, _parameters );
+					}
+				}
+      }else{
+				_rmParameters.passageLength = 0;
+				_rmParameters.passageOverlap = 0;
+				_rmParameters.fbDocs = 0;
+				_rmParameters.fbTerms = 0;
+				_rmParameters.fbOrigWeight = 0.0;
+				_rmParameters.targetPassages = false;
+				_rmParameters.condensed = 0;
+				_rmParameters.dm.combineWeight = 1.0;
+        _rmParameters.dm.owWeight = 0.0;
+        _rmParameters.dm.uwWeight = 0.0;
+        _rmParameters.dm.uwSize = 0;
+        _rmParameters.dm.order = 0;
+        _rmParameters.dm.rerankSize = 0;
+      }
 			if (_parameters.exists("maxWildcardTerms")) {
 				_environment.setMaxWildcardTerms((int)_parameters.get("maxWildcardTerms"));
 			}    
@@ -957,7 +1181,11 @@ public:
 			if (_parameters.exists("baseline") && ((query->text.find("#") != std::string::npos) || (query->text.find(".") != std::string::npos)) ) {
 				LEMUR_THROW( LEMUR_PARSE_ERROR, "Can't run baseline on this query: " + query->text + "\nindri query language operators are not allowed." );
 			}
-			_runQuery( output, query->text, query->qType, query->workingSet, query->relFBDocs );
+			if (_rmParameters.fbDocs == 0){
+				_runQuery( output, query->text, query->qType, query->workingSet, query->relFBDocs );
+			}else{
+				_runRM( output, query->text, query->qType, query->workingSet, query->relFBDocs );
+			}
 		} catch( lemur::api::Exception& e ) {
 			output << "# EXCEPTION in query " << query->number << ": " << e.what() << std::endl;
 		}
