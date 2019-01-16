@@ -603,10 +603,15 @@ private:
 			env = &_environment;
 		}
 		std::vector<indri::api::ScoredExtentResult> initialRetrieval = _rmInitial(originalQuery, query, queryType, env, workingSet);
+		if (initialRetrieval.size() == 0){
+			_results.clear();
+			return;
+		}
 		//
 		// 2. estimate rm
 		//
-		std::vector<indri::api::ScoredExtentResult> initialRetrievalCut(initialRetrieval.begin(), initialRetrieval.begin() + _rmParameters.fbDocs);
+		int cnt = (_rmParameters.fbDocs < initialRetrieval.size()) ? _rmParameters.fbDocs : initialRetrieval.size() ; 
+		std::vector<indri::api::ScoredExtentResult> initialRetrievalCut(initialRetrieval.begin(), initialRetrieval.begin() + cnt);
 		std::string expandedQuery = _expander->expand( query, initialRetrievalCut );     
 		if((_rmParameters.passageLength > 0)&&(!_rmParameters.targetPassages)){
 			for (int extentItr = expandedQuery.find('['); expandedQuery[extentItr] != '(' ; ){
