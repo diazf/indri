@@ -454,7 +454,7 @@ private:
     return (_stopwords.find((char *)s.c_str()) != _stopwords.end());
   }
   
-  std::string _dependenceModel(std::string &query, int order = 1, double combineWeight = 0.85, double owWeight = 0.10, double uwWeight = 0.05, int uwSize = 8){
+  std::string _dependenceModel(std::string &query, int order = 1, double combineWeight = 0.85, double owWeight = 0.10, double uwWeight = 0.05, int uwSize = 8, int passageLength = 0, int passageOverlap=0){
     std::vector < std::string > rawTokens;
     tokenize(rawTokens,query);
     //
@@ -470,8 +470,8 @@ private:
 		if (tokens.size() < 2){
 	    std::stringstream retvalStr;
 	    retvalStr << "#combine";
-	  	if (_passageLength > 0){
-				retvalStr << "[passage" << _passageLength << ":" << _passageOverlap << "]";					
+	  	if (passageLength > 0){
+				retvalStr << "[passage" << passageLength << ":" << passageOverlap << "]";					
 	  	}
 			retvalStr << "( ";
 	    retvalStr << query;
@@ -514,8 +514,8 @@ private:
     //
     std::stringstream retvalStr;
     retvalStr << "#weight";
-  	if (_passageLength > 0){
-			retvalStr << "[passage" << _passageLength << ":" << _passageOverlap << "]";					
+  	if (passageLength > 0){
+			retvalStr << "[passage" << passageLength << ":" << passageOverlap << "]";					
   	}
 		retvalStr << "( ";
     retvalStr << combineWeight << " #combine( " << query << " ) ";
@@ -549,7 +549,7 @@ private:
 			// 1. dm
 			//
       if (_rmParameters.dm.order != 0){
-        query = _dependenceModel(flatQuery, _rmParameters.dm.order, _rmParameters.dm.combineWeight, _rmParameters.dm.owWeight, _rmParameters.dm.uwWeight, _rmParameters.dm.uwSize);
+        query = _dependenceModel(flatQuery, _rmParameters.dm.order, _rmParameters.dm.combineWeight, _rmParameters.dm.owWeight, _rmParameters.dm.uwWeight, _rmParameters.dm.uwSize, _rmParameters.passageLength, _rmParameters.passageOverlap);
         if (_rmParameters.dm.rerankSize > 0){
 					//
 					// rerank the flat query results
@@ -677,7 +677,7 @@ private:
       // -1. dependence model
       //
       if (_dm.order != 0){
-        query = _dependenceModel(flatQuery, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize);
+        query = _dependenceModel(flatQuery, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize, _passageLength, _passageOverlap);
         if (_dm.rerankSize > 0){
           scoredWorkingSet = _environment.runQuery( flatQuery, _dm.rerankSize, queryType );
           for (int i = 0 ; i < scoredWorkingSet.size() ; i++){
