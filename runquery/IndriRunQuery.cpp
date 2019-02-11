@@ -334,6 +334,9 @@ int split(std::vector < std::string > &fields, std::string haystack, char delim 
   if (haystack.size() > 0) fields.push_back(haystack);
   return fields.size();
 }
+bool reverseSort(const std::pair<int,std::string> &a, const std::pair<int,std::string> &b) { 
+  return (a.first > b.first); 
+} 
 
 static bool copy_parameters_to_string_vector( std::vector<std::string>& vec, indri::api::Parameters p, const std::string& parameterName ) {
 	if( !p.exists(parameterName) )
@@ -410,6 +413,8 @@ private:
 
 	int _passageLength ;
 	int _passageOverlap ;
+  
+  int _weightedNumTerms;
 
 
 	indri::query::QueryExpander* _expander;
@@ -509,6 +514,7 @@ private:
         }        
       }
     }
+    
     //
     // format
     //
@@ -524,6 +530,42 @@ private:
     retvalStr << " ) ";
     return retvalStr.str();
   }
+  std::string _weighted(std::string s, int k){
+    std::vector < std::string > rawTokens;
+    tokenize(rawTokens,s);
+    indri::utility::HashTable < std::string , int > tokenCounts;
+    // std::vector < std::pair < std::string , int > > tokenCounts;
+    double tokenMass = 0.0;
+    for (int i = 0 ; i < rawTokens.size() ; i++){
+      std::string stem = _environment.stemTerm(rawTokens[i]);
+      if ((stem != "")&&(!_isStopword(stem))){
+        int *cnt = tokenCounts.find(stem);
+        if (cnt == NULL){
+          tokenCounts.insert(stem,1);
+        }else{
+          *cnt = *cnt + 1;
+        }
+        tokenMass += 1.0;
+      }
+    }
+    std::vector < std::pair < int , std::string > > tokenCountVector;
+    indri::utility::HashTable < std::string , int > :: iterator tokenCountItr;
+    for (tokenCountItr = tokenCounts.begin() ; tokenCountItr != tokenCounts.end() ; tokenCountItr++){
+      tokenCountVector.push_back(std::pair < int , std::string > ( *(tokenCountItr->second), *(tokenCountItr->first )));
+    }
+    std::sort(tokenCountVector.begin(), tokenCountVector.end(), reverseSort); 
+    std::stringstream retvalStr;
+    double topKMass = 0.0;
+    for (int i = 0 ; (i < tokenCountVector.size()) && (i < k) ; i++){
+      topKMass += tokenCountVector[i].first;
+    }
+    for (int i = 0 ; (i < tokenCountVector.size()) && (i < k) ; i++){
+      if (i>0) retvalStr << " ";
+      retvalStr << double(tokenCountVector[i].first) / topKMass << " " << tokenCountVector[i].second;
+    }
+    return retvalStr.str();
+  }
+  
 	std::vector<indri::api::ScoredExtentResult> 
 	_rmInitial( const std::string& originalQuery, 
 							std::string &query, 
@@ -539,7 +581,12 @@ private:
       query = _normalize(originalQuery);
 			std::string flatQuery = query;
 		  std::stringstream indriQuery;
-  		indriQuery << "#combine";
+      if (_weightedNumTerms > 0){
+        query = _weighted(query,_weightedNumTerms);
+    		indriQuery << "#weight";
+      }else{
+    		indriQuery << "#combine";        
+      }
     	if (_rmParameters.passageLength > 0){
 				indriQuery << "[passage" << _rmParameters.passageLength << ":" << _rmParameters.passageOverlap << "]";					
     	}
@@ -666,7 +713,12 @@ private:
       std::string query = _normalize(originalQuery);
 			std::string flatQuery = query;
 		  std::stringstream indriQuery;
-  		indriQuery << "#combine";
+      if (_weightedNumTerms > 0){
+        query = _weighted(query,_weightedNumTerms);
+    		indriQuery << "#weight";
+      }else{
+    		indriQuery << "#combine";        
+      }
     	if (_passageLength > 0){
 				indriQuery << "[passage" << _passageLength << ":" << _passageOverlap << "]";					
     	}
@@ -1009,6 +1061,7 @@ public:
 			_passageLength = _parameters.get( "passageLength", 0 );
 			_passageOverlap = _parameters.get( "passageOverlap", 0 );
 			
+      _weightedNumTerms = _parameters.get( "weightedNumTerms", 0 );
 
 			if (_parameters.exists("baseline")) {
 				// doing a baseline
