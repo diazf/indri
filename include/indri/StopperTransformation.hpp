@@ -35,11 +35,15 @@
 #if HAVE_GCC_VERSION(4,3)
 // if GCC 4.3+
 #include <tr1/unordered_set>
+using namespace __gnu_cxx;
+#elif defined(__APPLE__)
+#include <unordered_set>
 #else
 #include <ext/hash_set>
+using namespace __gnu_cxx;
 #endif
 // 3.3 does not use __gnu_cxx, 3.4+ does.
-using namespace __gnu_cxx;
+// using namespace __gnu_cxx;
 #endif
 
 namespace indri
@@ -67,6 +71,8 @@ namespace indri
       };
 #if HAVE_GCC_VERSION(4,3)
       typedef std::tr1::unordered_set<char *, std::tr1::hash<std::string>, eqstr> dictTable;
+#elif defined(__APPLE__)
+      typedef std::unordered_set<char *, std::hash<std::string>, eqstr> dictTable;
 #else
       typedef hash_set<char *, hash<char *>, eqstr> dictTable;
 #endif

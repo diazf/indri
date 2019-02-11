@@ -27,6 +27,11 @@
 #endif
 #endif
 
+#ifdef __APPLE__
+#include <atomic>
+#endif
+
+
 namespace indri {
   /*! \brief Atomic actions for thread support */
   namespace atomic {
@@ -39,6 +44,15 @@ namespace indri {
 
     inline void decrement( value_type& variable ) {
       ::InterlockedDecrement( &variable );
+    }
+#elif defined(__APPLE__)
+    typedef std::atomic_long value_type;
+    inline void increment( value_type& variable ) {
+      variable.fetch_add(1);
+    }
+
+    inline void decrement( value_type& variable ) {
+      variable.fetch_sub(1);
     }
 #else
     // GCC 3.4+ declares these in the __gnu_cxx namespace, 3.3- does not.

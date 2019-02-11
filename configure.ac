@@ -84,14 +84,14 @@ case $host in
      SHARED=
 
 # have to fix this for php/java bits.
-     PHP_SHARED=" -stdlib=libstdc++ -bundle  -undefined suppress -flat_namespace"
+     PHP_SHARED=" -stdlib=libc++ -bundle  -undefined suppress -flat_namespace"
      PHP_SO=".so"
-     JAVA_SHARED=" -stdlib=libstdc++ -dynamiclib -framework JavaVM"
+     JAVA_SHARED=" -stdlib=libc++ -dynamiclib -framework JavaVM"
      JAVA_SO=".jnilib"
-     CSHARP_SHARED=" -stdlib=libstdc++ -bundle  -undefined suppress -flat_namespace"
+     CSHARP_SHARED=" -stdlib=libc++ -bundle  -undefined suppress -flat_namespace"
      CSHARP_SO=".so"
-     CPPFLAGS+=" -stdlib=libstdc++"
-     LDFLAGS+=" -stdlib=libstdc++"
+     CPPFLAGS+=" -stdlib=libc++"
+     LDFLAGS+=" -stdlib=libc++"
      ;;
    *-*-darwin*)
      SHARED=
