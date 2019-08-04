@@ -571,7 +571,8 @@ private:
 							std::string &query, 
 							const std::string &queryType, 
 							indri::api::QueryEnvironment *env,
-							const std::vector<std::string> &workingSet ) {
+							const std::vector<std::string> &workingSet,
+							int passageLength ) {
 		try{
 			std::vector<lemur::api::DOCID_T> workingSetDocids;
 			std::vector<indri::api::ScoredExtentResult> scoredWorkingSet;
@@ -587,8 +588,8 @@ private:
       }else{
     		indriQuery << "#combine";        
       }
-    	if (_rmParameters.passageLength > 0){
-				indriQuery << "[passage" << _rmParameters.passageLength << ":" << _rmParameters.passageOverlap << "]";					
+    	if (passageLength > 0){
+				indriQuery << "[passage" << passageLength << ":" << _rmParameters.passageOverlap << "]";					
     	}
 			indriQuery << "( " << query << " )";
 			query = indriQuery.str();
@@ -596,7 +597,7 @@ private:
 			// 1. dm
 			//
       if (_rmParameters.dm.order != 0){
-        query = _dependenceModel(flatQuery, _rmParameters.dm.order, _rmParameters.dm.combineWeight, _rmParameters.dm.owWeight, _rmParameters.dm.uwWeight, _rmParameters.dm.uwSize, _rmParameters.passageLength, _rmParameters.passageOverlap);
+        query = _dependenceModel(flatQuery, _rmParameters.dm.order, _rmParameters.dm.combineWeight, _rmParameters.dm.owWeight, _rmParameters.dm.uwWeight, _rmParameters.dm.uwSize, passageLength, _rmParameters.passageOverlap);
         if (_rmParameters.dm.rerankSize > 0){
 					//
 					// rerank the flat query results
@@ -647,8 +648,11 @@ private:
 			LEMUR_RETHROW(e, "QueryThread::_rmFinal Exception");
 		}
 	}
-	void _runRM( std::stringstream& output, const std::string& originalQuery,
-	const std::string &queryType, const std::vector<std::string> &workingSet, std::vector<std::string> relFBDocs ) {
+	void _runRM(	std::stringstream& output, 
+								const std::string& originalQuery,
+								const std::string &queryType, 
+								const std::vector<std::string> &workingSet, 
+								std::vector<std::string> relFBDocs ) {
 		//
 		// 1. initial retrieval 
 		//
@@ -659,7 +663,7 @@ private:
 		}else{
 			env = &_environment;
 		}
-		std::vector<indri::api::ScoredExtentResult> initialRetrieval = _rmInitial(originalQuery, query, queryType, env, workingSet);
+		std::vector<indri::api::ScoredExtentResult> initialRetrieval = _rmInitial(originalQuery, query, queryType, env, workingSet, _rmParameters.passageLength);
 		if (initialRetrieval.size() == 0){
 			_results.clear();
 			return;
@@ -674,6 +678,7 @@ private:
 			for (int extentItr = expandedQuery.find('['); expandedQuery[extentItr] != '(' ; ){
 				expandedQuery.erase(expandedQuery.begin() + extentItr);
 			}
+			initialRetrieval.clear();
 		}
 		         
 		//
@@ -685,7 +690,8 @@ private:
 			workingSetDocids = env->documentIDsFromMetadata("docno", workingSet);
 		}else if (_rmParameters.condensed>0){
 			if ((_externalExpansion)||(_rmParameters.condensed > initialRetrieval.size())){
-				std::vector<indri::api::ScoredExtentResult> condensedList = env->runQuery( _normalize(originalQuery), _rmParameters.condensed, queryType );
+				std::vector<indri::api::ScoredExtentResult> condensedList = _rmInitial(originalQuery, query, queryType, env, workingSet, 0);
+					// env->runQuery( _normalize(originalQuery), _rmParameters.condensed, queryType );
 	      for (int i = 0 ; i < condensedList.size() ; i++){
 					lemur::api::DOCID_T did = condensedList[i].document;
 	        workingSetDocids.push_back(did);
