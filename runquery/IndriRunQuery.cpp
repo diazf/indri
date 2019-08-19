@@ -413,6 +413,8 @@ private:
 
 	int _passageLength ;
 	int _passageOverlap ;
+
+	std::string _field ;
   
   int _weightedNumTerms;
 
@@ -444,6 +446,7 @@ private:
 		double fbOrigWeight;
 		bool targetPassages;
 		int condensed;
+		std::string field;
 		
 	  struct {
 	    int order ;
@@ -459,7 +462,7 @@ private:
     return (_stopwords.find((char *)s.c_str()) != _stopwords.end());
   }
   
-  std::string _dependenceModel(std::string &query, int order = 1, double combineWeight = 0.85, double owWeight = 0.10, double uwWeight = 0.05, int uwSize = 8, int passageLength = 0, int passageOverlap=0){
+  std::string _dependenceModel(std::string &query, int order = 1, double combineWeight = 0.85, double owWeight = 0.10, double uwWeight = 0.05, int uwSize = 8, int passageLength = 0, int passageOverlap=0, std::string field = ""){
     std::vector < std::string > rawTokens;
     tokenize(rawTokens,query);
     //
@@ -477,6 +480,8 @@ private:
 	    retvalStr << "#combine";
 	  	if (passageLength > 0){
 				retvalStr << "[passage" << passageLength << ":" << passageOverlap << "]";					
+	  	}else if (field != ""){
+	  		retvalStr << "[" << field << "]";					
 	  	}
 			retvalStr << "( ";
 	    retvalStr << query;
@@ -522,6 +527,8 @@ private:
     retvalStr << "#weight";
   	if (passageLength > 0){
 			retvalStr << "[passage" << passageLength << ":" << passageOverlap << "]";					
+  	}else if (field != ""){
+  		retvalStr << "[" << field << "]";					
   	}
 		retvalStr << "( ";
     retvalStr << combineWeight << " #combine( " << query << " ) ";
@@ -590,6 +597,8 @@ private:
       }
     	if (passageLength > 0){
 				indriQuery << "[passage" << passageLength << ":" << _rmParameters.passageOverlap << "]";					
+    	}else if (_rmParameters.field != ""){
+    		indriQuery << "[" << _rmParameters.field << "]";					
     	}
 			indriQuery << "( " << query << " )";
 			query = indriQuery.str();
@@ -727,6 +736,8 @@ private:
       }
     	if (_passageLength > 0){
 				indriQuery << "[passage" << _passageLength << ":" << _passageOverlap << "]";					
+    	}else if (_field != ""){
+    		indriQuery << "[" << _field << "]";					
     	}
 			indriQuery << "( " << query << " )";
 			query = indriQuery.str();
@@ -735,7 +746,7 @@ private:
       // -1. dependence model
       //
       if (_dm.order != 0){
-        query = _dependenceModel(flatQuery, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize, _passageLength, _passageOverlap);
+        query = _dependenceModel(flatQuery, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize, _passageLength, _passageOverlap, _field);
         if (_dm.rerankSize > 0){
           scoredWorkingSet = _environment.runQuery( flatQuery, _dm.rerankSize, queryType );
           for (int i = 0 ; i < scoredWorkingSet.size() ; i++){
@@ -1066,6 +1077,8 @@ public:
 			
 			_passageLength = _parameters.get( "passageLength", 0 );
 			_passageOverlap = _parameters.get( "passageOverlap", 0 );
+
+			_field = _parameters.get( "field", "" );
 			
       _weightedNumTerms = _parameters.get( "weightedNumTerms", 0 );
 
@@ -1132,6 +1145,7 @@ public:
       if (_parameters.exists("rm")){
 				_rmParameters.passageLength = 0;
 				_rmParameters.passageOverlap = 0;
+				_rmParameters.field = "";
 				_rmParameters.fbDocs = 0;
 				_rmParameters.fbTerms = 0;
 				_rmParameters.fbOrigWeight = 0.0;
@@ -1176,6 +1190,8 @@ public:
             _rmParameters.dm.uwSize = atof(kv[1].c_str());
           }else if (kv[0] == "dm.rerank"){
             _rmParameters.dm.rerankSize = atoi(kv[1].c_str());
+          }else if (kv[0] == "field"){
+            _rmParameters.field = kv[1].c_str();
           }
         }
 				_parameters.set("fbDocs", _rmParameters.fbDocs);
@@ -1193,6 +1209,7 @@ public:
       }else{
 				_rmParameters.passageLength = 0;
 				_rmParameters.passageOverlap = 0;
+        _rmParameters.field = "";
 				_rmParameters.fbDocs = 0;
 				_rmParameters.fbTerms = 0;
 				_rmParameters.fbOrigWeight = 0.0;

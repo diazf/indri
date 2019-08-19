@@ -68,6 +68,33 @@ Dependence models are built after internally stopping and stemming the query ter
 | fbRankDocuments | bool | false | used in conjunction with `passageLength` > 0 and PRF for document ranking based on [passage RMs](https://dl.acm.org/citation.cfm?id=584854).  |
 
 
+### Passage Retrieval
+
+| parameter | type | default | description |
+| --------- | ---- | :-------: | ----------- |
+| field | string | NONE | restrict retrieval to this field.  |
+
+
+### RM Parameters
+
+To use advanced RM parameters, just use `-rm=<rm parameter:rm parameter value>[,<rm parameter:rm parameter value>]+`.  Defaults are used if any RM parameters are set.
+
+| parameter | type | default | description |
+| --------- | ---- | :-------: | ----------- |
+| passageLength | 0 | passage length for passage-based RM (0=doc). |
+| passageOverlap | 0 | passage overlap for passage-based RM (0=doc). |
+| field | NONE | field restriction for field-based RM. |
+| fbDocs | 0 | num feedback documents |
+| fbTerms | 0 | num feeback terms |
+| fbOrigWeight | 0.0 | original weight. |
+| targetPassages | false | rank passages instead of documents in the final retrieval. |
+| condensed | 0 | rerank |
+| dm.combineWeight | 0.85 | DM parameter for initial retrieval (default is no DM; see above). |
+| dm.owWeight | 0.10 | DM parameter for initial retrieval (default is no DM; see above). |
+| dm.uwWeight | 0.05 | DM parameter for initial retrieval (default is no DM; see above). |
+| dm.uwSize | 8 | DM parameter for initial retrieval (default is no DM; see above). |
+| dm.order | 1 | DM parameter for initial retrieval (default is no DM; see above). |
+| dm.rerankSize | 0 | DM parameter for initial retrieval (default is no DM; see above). |
 
 
 ## Baseline Cheatsheet 
