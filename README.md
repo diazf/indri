@@ -81,20 +81,25 @@ To use advanced RM parameters, just use `-rm=<rm parameter:rm parameter value>[,
 
 | parameter | type | default | description |
 | --------- | ---- | :-------: | ----------- |
-| passageLength | 0 | passage length for passage-based RM (0=doc). |
-| passageOverlap | 0 | passage overlap for passage-based RM (0=doc). |
-| field | NONE | field restriction for field-based RM. |
-| fbDocs | 0 | num feedback documents |
-| fbTerms | 0 | num feeback terms |
-| fbOrigWeight | 0.0 | original weight. |
-| targetPassages | false | rank passages instead of documents in the final retrieval. |
-| condensed | 0 | rerank |
-| dm.combineWeight | 0.85 | DM parameter for initial retrieval (default is no DM; see above). |
-| dm.owWeight | 0.10 | DM parameter for initial retrieval (default is no DM; see above). |
-| dm.uwWeight | 0.05 | DM parameter for initial retrieval (default is no DM; see above). |
-| dm.uwSize | 8 | DM parameter for initial retrieval (default is no DM; see above). |
-| dm.order | 1 | DM parameter for initial retrieval (default is no DM; see above). |
-| dm.rerankSize | 0 | DM parameter for initial retrieval (default is no DM; see above). |
+| passageLength | int | 0 | passage length for passage-based RM (0=doc). |
+| passageOverlap | int | 0 | passage overlap for passage-based RM (0=doc). |
+| field | string | NONE | field restriction for field-based RM. |
+| fbDocs | int | 0 | num feedback documents |
+| fbTerms | int | 0 | num feeback terms |
+| fbOrigWeight | float | 0.0 | original weight. |
+| targetPassages | bool | false | rank passages instead of documents in the final retrieval. |
+| condensed | int | 0 | rerank |
+
+If you want the initial retrieval to be a DM (see above), you can pass the following into the rm parameter list,
+
+| parameter | type | default | description |
+| --------- | ---- | :-------: | ----------- |
+| dm.combineWeight | float | 0.85 |  |
+| dm.owWeight | float | 0.10 |  |
+| dm.uwWeight | float | 0.05 |  |
+| dm.uwSize | int | 8 |  |
+| dm.order | int | 1 |  |
+| dm.rerankSize | int | 0 | |
 
 
 ## Baseline Cheatsheet 
