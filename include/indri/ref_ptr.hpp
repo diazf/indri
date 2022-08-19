@@ -109,12 +109,19 @@ namespace indri {
       bool operator== ( ref_ptr& other ) {
         return _ref == other._ref;
       }
-
+#ifdef __APPLE__
+      long references() {
+        if( _ref )
+          return _ref->counter.load();
+        return 0;
+      }
+#else
       atomic::value_type references() {
         if( _ref )
           return _ref->counter;
         return 0;
       }
+#endif
 
       T& operator* () {
         return *_ref->object;

@@ -7,6 +7,8 @@ This is a clone of Indri 5.12 with minor customizations.
 
 Unless noted, all parameters are thrown on the command line just like other IndriRunQuery parameters. 
 
+***NB. Input queries are assumed to be natural language, not Indri query language.***
+
 ### [Condensed List Relevance Models](https://dl.acm.org/citation.cfm?id=2808194.2809491)
 
 | parameter | type | default | description |
@@ -19,7 +21,7 @@ Using condensed list relevance models can substantially improve speed without de
 
 | parameter | type | default | description |
 | --------- | ---- | :-------: | ----------- |
-| externalIndex | path | NONE | RM is built from an initial query likelihood retrieval from externalIndex.  |
+| externalIndex | path | NONE | RM is built from an initial query likelihood retrieval from `externalIndex`.  |
 
 Using external expansion with a large external index can substantially improve effectiveness of query expansion.  This can be combined with condensed list relevance models (from the target corpus) if you are concerned about speed.  
 
@@ -56,6 +58,49 @@ IndriRunQuery -index=/path/to/index -query="hello world" -dm=order:1,rerank:100
 ```
 
 Dependence models are built after internally stopping and stemming the query terms.
+
+### Passage Retrieval
+
+| parameter | type | default | description |
+| --------- | ---- | :-------: | ----------- |
+| passageLength | int | 0 | length of passages to retrieve.  |
+| passageOverlap | int | 0 | passage overlap.  |
+| fbRankDocuments | bool | false | used in conjunction with `passageLength` > 0 and PRF for document ranking based on [passage RMs](https://dl.acm.org/citation.cfm?id=584854).  |
+
+
+### Passage Retrieval
+
+| parameter | type | default | description |
+| --------- | ---- | :-------: | ----------- |
+| field | string | NONE | restrict retrieval to this field.  |
+
+
+### RM Parameters
+
+To use advanced RM parameters, just use `-rm=<rm parameter:rm parameter value>[,<rm parameter:rm parameter value>]+`.  Defaults are used if any RM parameters are set.
+
+| parameter | type | default | description |
+| --------- | ---- | :-------: | ----------- |
+| passageLength | int | 0 | passage length for passage-based RM (0=doc). |
+| passageOverlap | int | 0 | passage overlap for passage-based RM (0=doc). |
+| field | string | NONE | field restriction for field-based RM. |
+| fbDocs | int | 0 | num feedback documents |
+| fbTerms | int | 0 | num feeback terms |
+| fbOrigWeight | float | 0.0 | original weight. |
+| targetPassages | bool | false | rank passages instead of documents in the final retrieval. |
+| condensed | int | 0 | rerank |
+
+If you want the initial retrieval to be a DM (see above), you can pass the following into the rm parameter list,
+
+| parameter | type | default | description |
+| --------- | ---- | :-------: | ----------- |
+| dm.combineWeight | float | 0.85 |  |
+| dm.owWeight | float | 0.10 |  |
+| dm.uwWeight | float | 0.05 |  |
+| dm.uwSize | int | 8 |  |
+| dm.order | int | 1 |  |
+| dm.rerankSize | int | 0 | |
+
 
 ## Baseline Cheatsheet 
 
@@ -108,7 +153,25 @@ If you are not sure where your model fits in the cheatsheet above, a strong base
 
 ## Citation 
 
-Use the standard indri citation and  references to whatever algorithms above you are using.  Link to the code for reproducibility.   
+Use the standard indri citation,
+```
+@inproceedings{strohman:indri,
+author = {Trevor Strohman and Donald Metzler and Howard Turtle and W. B. Croft},
+booktitle = {Proceedings of the International Conference on Intelligence Analysis},
+title = {Indri: A language model-based search engine for complex queries},
+year = {2004}
+}
+```
+as well as the following for reproducibility,
+```
+@online{diaz:indri,
+author = {Fernando Diaz},
+title = {indri},
+year = {2018},
+url = {https://github.com/diazf/indri}
+}
+```
+and references to any specific algorithms above you are using.
 
 ## Notes
 

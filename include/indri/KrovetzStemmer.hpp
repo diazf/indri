@@ -27,11 +27,15 @@
 #if HAVE_GCC_VERSION(4,3)
 // if GCC 4.3+
 #include <tr1/unordered_map>
+using namespace __gnu_cxx;
+#elif defined(__APPLE__)
+#include <unordered_map>
 #else
 #include <ext/hash_map>
+using namespace __gnu_cxx;
 #endif
 // 3.3 does not use __gnu_cxx, 3.4+ does.
-using namespace __gnu_cxx;
+// using namespace __gnu_cxx;
 #endif
 #include "indri/Mutex.hpp"
 #include "indri/ScopedLock.hpp"
@@ -149,6 +153,8 @@ namespace indri
       };
 #if HAVE_GCC_VERSION(4,3)
       typedef std::tr1::unordered_map<const char *, dictEntry, std::tr1::hash<std::string>, eqstr> dictTable;
+#elif defined(__APPLE__)
+      typedef std::unordered_map<const char *, dictEntry, std::hash<std::string>, eqstr> dictTable;
 #else
       typedef hash_map<const char *, dictEntry, hash<const char *>, eqstr> dictTable;
 #endif

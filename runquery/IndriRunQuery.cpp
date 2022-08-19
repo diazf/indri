@@ -334,6 +334,9 @@ int split(std::vector < std::string > &fields, std::string haystack, char delim 
   if (haystack.size() > 0) fields.push_back(haystack);
   return fields.size();
 }
+bool reverseSort(const std::pair<int,std::string> &a, const std::pair<int,std::string> &b) { 
+  return (a.first > b.first); 
+} 
 
 static bool copy_parameters_to_string_vector( std::vector<std::string>& vec, indri::api::Parameters p, const std::string& parameterName ) {
 	if( !p.exists(parameterName) )
@@ -393,6 +396,7 @@ private:
 	int _initialRequested;
 
 	int _rerankSize;
+	bool _fbRankDocuments;
 	bool _externalExpansion;
 
   indri::utility::HashSet _stopwords;
@@ -404,7 +408,16 @@ private:
 
 	std::string _runID;
 	bool _trecFormat;
+	bool _expandOnly;
 	bool _inexFormat;
+
+	int _passageLength ;
+	int _passageOverlap ;
+
+	std::string _field ;
+  
+  int _weightedNumTerms;
+
 
 	indri::query::QueryExpander* _expander;
 	std::vector<indri::api::ScoredExtentResult> _results;
@@ -422,14 +435,36 @@ private:
     int rerankSize;
   } _dm;
   
+  //
+  // RM parameters
+  //
+  struct {
+		int passageLength;
+		int passageOverlap;
+		int fbDocs;
+		int fbTerms;
+		double fbOrigWeight;
+		bool targetPassages;
+		int condensed;
+		std::string field;
+		
+	  struct {
+	    int order ;
+	    double combineWeight;
+	    double owWeight;
+	    double uwWeight;
+	    int uwSize;
+	    int rerankSize;
+	  } dm;
+  } _rmParameters;
+
   bool _isStopword(std::string s){
     return (_stopwords.find((char *)s.c_str()) != _stopwords.end());
   }
   
-  std::string _dependenceModel(std::string &query, int order = 1, double combineWeight = 0.85, double owWeight = 0.10, double uwWeight = 0.05, int uwSize = 8){
+  std::string _dependenceModel(std::string &query, int order = 1, double combineWeight = 0.85, double owWeight = 0.10, double uwWeight = 0.05, int uwSize = 8, int passageLength = 0, int passageOverlap=0, std::string field = ""){
     std::vector < std::string > rawTokens;
     tokenize(rawTokens,query);
-    if (rawTokens.size() < 2) return query;
     //
     // 1. stop and stem 
     //
@@ -440,6 +475,19 @@ private:
         tokens.push_back(stem);
       }
     }
+		if (tokens.size() < 2){
+	    std::stringstream retvalStr;
+	    retvalStr << "#combine";
+	  	if (passageLength > 0){
+				retvalStr << "[passage" << passageLength << ":" << passageOverlap << "]";					
+	  	}else if (field != ""){
+	  		retvalStr << "[" << field << "]";					
+	  	}
+			retvalStr << "( ";
+	    retvalStr << query;
+	    retvalStr << " ) ";
+			return retvalStr.str();
+		}
     //
     // do full dependence
     //
@@ -471,18 +519,206 @@ private:
         }        
       }
     }
+    
     //
     // format
     //
     std::stringstream retvalStr;
-    retvalStr << "#weight( ";
+    retvalStr << "#weight";
+  	if (passageLength > 0){
+			retvalStr << "[passage" << passageLength << ":" << passageOverlap << "]";					
+  	}else if (field != ""){
+  		retvalStr << "[" << field << "]";					
+  	}
+		retvalStr << "( ";
     retvalStr << combineWeight << " #combine( " << query << " ) ";
     retvalStr << owWeight << " #combine( " << ss_sd_ow.str() << " "<< ss_fd_ow.str() << " ) ";
     retvalStr << uwWeight << " #combine( " << ss_sd_uw.str() << " "<< ss_fd_uw.str() << " ) ";
     retvalStr << " ) ";
     return retvalStr.str();
   }
-
+  std::string _weighted(std::string s, int k){
+    std::vector < std::string > rawTokens;
+    tokenize(rawTokens,s);
+    indri::utility::HashTable < std::string , int > tokenCounts;
+    // std::vector < std::pair < std::string , int > > tokenCounts;
+    double tokenMass = 0.0;
+    for (int i = 0 ; i < rawTokens.size() ; i++){
+      std::string stem = _environment.stemTerm(rawTokens[i]);
+      if ((stem != "")&&(!_isStopword(stem))){
+        int *cnt = tokenCounts.find(stem);
+        if (cnt == NULL){
+          tokenCounts.insert(stem,1);
+        }else{
+          *cnt = *cnt + 1;
+        }
+        tokenMass += 1.0;
+      }
+    }
+    std::vector < std::pair < int , std::string > > tokenCountVector;
+    indri::utility::HashTable < std::string , int > :: iterator tokenCountItr;
+    for (tokenCountItr = tokenCounts.begin() ; tokenCountItr != tokenCounts.end() ; tokenCountItr++){
+      tokenCountVector.push_back(std::pair < int , std::string > ( *(tokenCountItr->second), *(tokenCountItr->first )));
+    }
+    std::sort(tokenCountVector.begin(), tokenCountVector.end(), reverseSort); 
+    std::stringstream retvalStr;
+    double topKMass = 0.0;
+    for (int i = 0 ; (i < tokenCountVector.size()) && (i < k) ; i++){
+      topKMass += tokenCountVector[i].first;
+    }
+    for (int i = 0 ; (i < tokenCountVector.size()) && (i < k) ; i++){
+      if (i>0) retvalStr << " ";
+      retvalStr << double(tokenCountVector[i].first) / topKMass << " " << tokenCountVector[i].second;
+    }
+    return retvalStr.str();
+  }
+  
+	std::vector<indri::api::ScoredExtentResult> 
+	_rmInitial( const std::string& originalQuery, 
+							std::string &query, 
+							const std::string &queryType, 
+							indri::api::QueryEnvironment *env,
+							const std::vector<std::string> &workingSet,
+							int passageLength ) {
+		try{
+			std::vector<lemur::api::DOCID_T> workingSetDocids;
+			std::vector<indri::api::ScoredExtentResult> scoredWorkingSet;
+			//
+			// 0. build flat query
+			//
+      query = _normalize(originalQuery);
+			std::string flatQuery = query;
+		  std::stringstream indriQuery;
+      if (_weightedNumTerms > 0){
+        query = _weighted(query,_weightedNumTerms);
+    		indriQuery << "#weight";
+      }else{
+    		indriQuery << "#combine";        
+      }
+    	if (passageLength > 0){
+				indriQuery << "[passage" << passageLength << ":" << _rmParameters.passageOverlap << "]";					
+    	}else if (_rmParameters.field != ""){
+    		indriQuery << "[" << _rmParameters.field << "]";					
+    	}
+			indriQuery << "( " << query << " )";
+			query = indriQuery.str();
+			//
+			// 1. dm
+			//
+      if (_rmParameters.dm.order != 0){
+        query = _dependenceModel(flatQuery, _rmParameters.dm.order, _rmParameters.dm.combineWeight, _rmParameters.dm.owWeight, _rmParameters.dm.uwWeight, _rmParameters.dm.uwSize, passageLength, _rmParameters.passageOverlap);
+        if (_rmParameters.dm.rerankSize > 0){
+					//
+					// rerank the flat query results
+					//
+					scoredWorkingSet = env->runQuery( flatQuery, _rmParameters.dm.rerankSize, queryType );
+          for (int i = 0 ; i < scoredWorkingSet.size() ; i++){
+            workingSetDocids.push_back(scoredWorkingSet[i].document);
+          }
+					return env->runQuery( query, workingSetDocids, workingSetDocids.size(), queryType );
+        }
+			}
+			if (workingSet.size()>0){
+				//
+				// rerank working set
+				//
+				workingSetDocids = env->documentIDsFromMetadata("docno", workingSet);
+      	return env->runQuery( query, workingSetDocids, workingSetDocids.size(), queryType );
+      }else{
+				//
+				// retrieve
+				//
+				return env->runQuery( query, _requested, queryType );
+      }
+		}catch( lemur::api::Exception& e ){
+			_results.clear();
+			LEMUR_RETHROW(e, "QueryThread::_rmInitial Exception");
+		}
+	}
+	std::vector<indri::api::ScoredExtentResult> 
+	_rmFinal( const std::string &expandedQuery, 
+						const std::string &queryType, 
+						indri::api::QueryEnvironment *env,
+						const std::vector<lemur::api::DOCID_T> &workingSetDocids ) {
+		try{
+			if (workingSetDocids.size() > 0) {
+				//
+				// 1. rerank working set
+				//
+				return env->runQuery( expandedQuery, workingSetDocids, _requested, queryType );
+			} else {
+				//
+				// 2. run full expanded retrieval
+				//
+				return env->runQuery( expandedQuery, _requested, queryType );              
+			}
+		}catch( lemur::api::Exception& e ){
+			_results.clear();
+			LEMUR_RETHROW(e, "QueryThread::_rmFinal Exception");
+		}
+	}
+	void _runRM(	std::stringstream& output, 
+								const std::string& originalQuery,
+								const std::string &queryType, 
+								const std::vector<std::string> &workingSet, 
+								std::vector<std::string> relFBDocs ) {
+		//
+		// 1. initial retrieval 
+		//
+		indri::api::QueryEnvironment *env = NULL;		
+		std::string query="";
+		if (_externalExpansion){
+			env = &_externalEnvironment;
+		}else{
+			env = &_environment;
+		}
+		std::vector<indri::api::ScoredExtentResult> initialRetrieval = _rmInitial(originalQuery, query, queryType, env, workingSet, _rmParameters.passageLength);
+		if (initialRetrieval.size() == 0){
+			_results.clear();
+			return;
+		}
+		//
+		// 2. estimate rm
+		//
+		int cnt = (_rmParameters.fbDocs < initialRetrieval.size()) ? _rmParameters.fbDocs : initialRetrieval.size() ; 
+		std::vector<indri::api::ScoredExtentResult> initialRetrievalCut(initialRetrieval.begin(), initialRetrieval.begin() + cnt);
+		std::string expandedQuery = _expander->expand( query, initialRetrievalCut );     
+		if((_rmParameters.passageLength > 0)&&(!_rmParameters.targetPassages)){
+			for (int extentItr = expandedQuery.find('['); expandedQuery[extentItr] != '(' ; ){
+				expandedQuery.erase(expandedQuery.begin() + extentItr);
+			}
+			initialRetrieval.clear();
+		}
+		         
+		//
+		// 3. 
+		//
+		std::vector<lemur::api::DOCID_T> workingSetDocids;		
+		env = &_environment;
+		if (workingSet.size() > 0){
+			workingSetDocids = env->documentIDsFromMetadata("docno", workingSet);
+		}else if (_rmParameters.condensed>0){
+			if ((_externalExpansion)||(_rmParameters.condensed > initialRetrieval.size())){
+				std::vector<indri::api::ScoredExtentResult> condensedList = _rmInitial(originalQuery, query, queryType, env, workingSet, 0);
+					// env->runQuery( _normalize(originalQuery), _rmParameters.condensed, queryType );
+	      for (int i = 0 ; i < condensedList.size() ; i++){
+					lemur::api::DOCID_T did = condensedList[i].document;
+	        workingSetDocids.push_back(did);
+	      }
+			}else{
+				
+	      for (int i = 0 ; (i < initialRetrieval.size())&&(workingSetDocids.size()<_rmParameters.condensed) ; i++){
+					lemur::api::DOCID_T did = initialRetrieval[i].document;
+					std::vector<lemur::api::DOCID_T>::iterator itr = std::find (workingSetDocids.begin(), workingSetDocids.end(), did);
+					if (itr == workingSetDocids.end()){
+		        workingSetDocids.push_back(did);
+					}
+	      }
+			}
+		}
+		
+		_results = _rmFinal(expandedQuery, queryType, env, workingSetDocids);
+	}
 	void _runQuery( std::stringstream& output, const std::string& originalQuery,
 	const std::string &queryType, const std::vector<std::string> &workingSet, std::vector<std::string> relFBDocs ) {
 		try {
@@ -490,13 +726,29 @@ private:
 			std::vector<indri::api::ScoredExtentResult> scoredWorkingSet;
       
       std::string query = _normalize(originalQuery);
+			std::string flatQuery = query;
+		  std::stringstream indriQuery;
+      if (_weightedNumTerms > 0){
+        query = _weighted(query,_weightedNumTerms);
+    		indriQuery << "#weight";
+      }else{
+    		indriQuery << "#combine";        
+      }
+    	if (_passageLength > 0){
+				indriQuery << "[passage" << _passageLength << ":" << _passageOverlap << "]";					
+    	}else if (_field != ""){
+    		indriQuery << "[" << _field << "]";					
+    	}
+			indriQuery << "( " << query << " )";
+			query = indriQuery.str();
+			
       //
       // -1. dependence model
       //
       if (_dm.order != 0){
-        query = _dependenceModel(query, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize);
+        query = _dependenceModel(flatQuery, _dm.order, _dm.combineWeight, _dm.owWeight, _dm.uwWeight, _dm.uwSize, _passageLength, _passageOverlap, _field);
         if (_dm.rerankSize > 0){
-          scoredWorkingSet = _environment.runQuery( originalQuery, _dm.rerankSize, queryType );
+          scoredWorkingSet = _environment.runQuery( flatQuery, _dm.rerankSize, queryType );
           for (int i = 0 ; i < scoredWorkingSet.size() ; i++){
             workingSetDocids.push_back(scoredWorkingSet[i].document);
           }
@@ -578,17 +830,34 @@ private:
 			//
 			// 2.b. score w expandedQuery
 			//
-			if( _printQuery ) output << "# expanded: " << expandedQuery << std::endl;
-			if (workingSetDocids.size() > 0) {
-				//
-				// 2.b.1. rerank docids
-				//
-				_results = _environment.runQuery( expandedQuery, workingSetDocids, _requested, queryType );
-			} else {
-				//
-				// 2.b.2. run full expanded retrieval
-				//
-				_results = _environment.runQuery( expandedQuery, _requested, queryType );              
+			if ( _expandOnly ){
+			  std::size_t found = expandedQuery.find("#weight(  ");
+			  if (found!=std::string::npos){
+			  	expandedQuery.erase(0,found+10);
+			  }
+			  found = expandedQuery.find("  ) )");
+			  if (found!=std::string::npos){
+			  	expandedQuery.erase(found);
+			  }				
+				output << expandedQuery << std::endl;				
+			}else{
+				if((_passageLength > 0)&&(_fbRankDocuments)){
+					for (int extentItr = expandedQuery.find('['); expandedQuery[extentItr] != '(' ; ){
+						expandedQuery.erase(expandedQuery.begin() + extentItr);
+					}
+				}
+				if( _printQuery ) output << "# expanded: " << expandedQuery << std::endl;
+				if (workingSetDocids.size() > 0) {
+					//
+					// 2.b.1. rerank docids
+					//
+					_results = _environment.runQuery( expandedQuery, workingSetDocids, _requested, queryType );
+				} else {
+					//
+					// 2.b.2. run full expanded retrieval
+					//
+					_results = _environment.runQuery( expandedQuery, _requested, queryType );              
+				}
 			}
 			return;
 		}
@@ -794,14 +1063,24 @@ public:
 			_requested = _parameters.get( "count", 1000 );
 			_initialRequested = _parameters.get( "fbDocs", _requested );
 			_rerankSize = _parameters.get( "rerankSize", 0 );
+			_fbRankDocuments = _parameters.get( "fbRankDocuments", false );
 			_runID = _parameters.get( "runID", "indri" );
 			_trecFormat = _parameters.get( "trecFormat" , false );
 			_inexFormat = _parameters.exists( "inex" );
+
+			_expandOnly = _parameters.get( "expandOnly" , false );
 
 			_printQuery = _parameters.get( "printQuery", false );
 			_printDocuments = _parameters.get( "printDocuments", false );
 			_printPassages = _parameters.get( "printPassages", false );
 			_printSnippets = _parameters.get( "printSnippets", false );
+			
+			_passageLength = _parameters.get( "passageLength", 0 );
+			_passageOverlap = _parameters.get( "passageOverlap", 0 );
+
+			_field = _parameters.get( "field", "" );
+			
+      _weightedNumTerms = _parameters.get( "weightedNumTerms", 0 );
 
 			if (_parameters.exists("baseline")) {
 				// doing a baseline
@@ -854,7 +1133,7 @@ public:
           }else if (kv[0] == "rerank"){
             _dm.rerankSize = atoi(kv[1].c_str());
           }
-        }        
+        }
       }else{
         _dm.combineWeight = 1.0;
         _dm.uwWeight = 0.0;
@@ -863,7 +1142,86 @@ public:
         _dm.order = 0;
         _dm.rerankSize = 0;
       }
-
+      if (_parameters.exists("rm")){
+				_rmParameters.passageLength = 0;
+				_rmParameters.passageOverlap = 0;
+				_rmParameters.field = "";
+				_rmParameters.fbDocs = 0;
+				_rmParameters.fbTerms = 0;
+				_rmParameters.fbOrigWeight = 0.0;
+				_rmParameters.targetPassages = false;
+				_rmParameters.condensed = 0;
+				_rmParameters.dm.combineWeight = 0.85;
+        _rmParameters.dm.owWeight = 0.10;
+        _rmParameters.dm.uwWeight = 0.05;
+        _rmParameters.dm.uwSize = 8;
+        _rmParameters.dm.order = 1;
+        _rmParameters.dm.rerankSize = 0;
+				
+        std::string rmParameters = _parameters["rm"];        
+  			std::vector<std::string> fields;
+        split(fields,rmParameters,',');
+        for (int i = 0 ; i < fields.size() ; i++){
+    			std::vector<std::string> kv;
+          split(kv,fields[i],':');
+					if (kv[0] == "passageLength"){
+            _rmParameters.passageLength = atoi(kv[1].c_str());
+					}else if (kv[0] == "passageOverlap"){
+            _rmParameters.passageOverlap = atoi(kv[1].c_str());
+					}else if (kv[0] == "fbDocs"){
+            _rmParameters.fbDocs = atoi(kv[1].c_str());
+					}else if (kv[0] == "fbTerms"){
+            _rmParameters.fbTerms = atoi(kv[1].c_str());
+					}else if (kv[0] == "fbOrigWeight"){
+            _rmParameters.fbOrigWeight = atof(kv[1].c_str());
+					}else if (kv[0] == "targetPassages"){
+            _rmParameters.targetPassages = atoi(kv[1].c_str());
+					}else if (kv[0] == "condensed"){
+            _rmParameters.condensed = atoi(kv[1].c_str());
+					}else if (kv[0] == "dm.order"){
+            _rmParameters.dm.order = atoi(kv[1].c_str());
+          }else if (kv[0] == "dm.combineWeight"){
+            _rmParameters.dm.combineWeight = atof(kv[1].c_str());
+          }else if (kv[0] == "dm.uwWeight"){
+            _rmParameters.dm.uwWeight = atof(kv[1].c_str());
+          }else if (kv[0] == "dm.owWeight"){
+            _rmParameters.dm.owWeight = atof(kv[1].c_str());
+          }else if (kv[0] == "dm.uwSize"){
+            _rmParameters.dm.uwSize = atof(kv[1].c_str());
+          }else if (kv[0] == "dm.rerank"){
+            _rmParameters.dm.rerankSize = atoi(kv[1].c_str());
+          }else if (kv[0] == "field"){
+            _rmParameters.field = kv[1].c_str();
+          }
+        }
+				_parameters.set("fbDocs", _rmParameters.fbDocs);
+				_parameters.set("fbTerms", _rmParameters.fbTerms);
+				_parameters.set("fbOrigWeight", _rmParameters.fbOrigWeight);
+				
+				if (_rmParameters.fbDocs>0){
+					if (externalIndices) {
+						_externalExpansion = true;
+						_expander = new indri::query::RMExpander( &_externalEnvironment, _parameters, &_environment);
+					}else{
+						_expander = new indri::query::RMExpander( &_environment, _parameters );
+					}
+				}
+      }else{
+				_rmParameters.passageLength = 0;
+				_rmParameters.passageOverlap = 0;
+        _rmParameters.field = "";
+				_rmParameters.fbDocs = 0;
+				_rmParameters.fbTerms = 0;
+				_rmParameters.fbOrigWeight = 0.0;
+				_rmParameters.targetPassages = false;
+				_rmParameters.condensed = 0;
+				_rmParameters.dm.combineWeight = 1.0;
+        _rmParameters.dm.owWeight = 0.0;
+        _rmParameters.dm.uwWeight = 0.0;
+        _rmParameters.dm.uwSize = 0;
+        _rmParameters.dm.order = 0;
+        _rmParameters.dm.rerankSize = 0;
+      }
 			if (_parameters.exists("maxWildcardTerms")) {
 				_environment.setMaxWildcardTerms((int)_parameters.get("maxWildcardTerms"));
 			}    
@@ -905,18 +1263,28 @@ public:
 			}
 		}
 
+		if ( _expandOnly ) {
+			output << query->number << "\t";
+		}
+
 		// run the query
 		try {
 			if (_parameters.exists("baseline") && ((query->text.find("#") != std::string::npos) || (query->text.find(".") != std::string::npos)) ) {
 				LEMUR_THROW( LEMUR_PARSE_ERROR, "Can't run baseline on this query: " + query->text + "\nindri query language operators are not allowed." );
 			}
-			_runQuery( output, query->text, query->qType, query->workingSet, query->relFBDocs );
+			if (_rmParameters.fbDocs == 0){
+				_runQuery( output, query->text, query->qType, query->workingSet, query->relFBDocs );
+			}else{
+				_runRM( output, query->text, query->qType, query->workingSet, query->relFBDocs );
+			}
 		} catch( lemur::api::Exception& e ) {
 			output << "# EXCEPTION in query " << query->number << ": " << e.what() << std::endl;
 		}
 
 		// print the results to the output stream
-		_printResults( output, query->number );
+		if ( !_expandOnly ) {
+			_printResults( output, query->number );
+		}
 
 		// push that data into an output queue...?
 		{
