@@ -973,9 +973,22 @@ int main(int argc, char * argv[]) {
       env.setOffsetAnnotationIndexHint(indri::parse::OAHintDefault);
     }
 
-    std::string stemmerName = parameters.get("stemmer.name", "");
+    /* std::string stemmerName = parameters.get("stemmer.name", "");
     if( stemmerName.length() )
       env.setStemmer(stemmerName);
+    */
+    
+    //- Throw an error and fail if user specifies a stemmer without a <name> parameter.
+    if (parameters.exists ("stemmer")) {
+      std::string stemmerName = parameters.get("stemmer.name", "");
+
+      if( stemmerName.length() > 0)
+	env.setStemmer(stemmerName);
+      else {
+	LEMUR_THROW (LEMUR_MISSING_PARAMETER_ERROR,
+		     "Stemmer name parameter not specified. Use <stemmer><name>stemmer_name</name></stemmer>");
+      }
+    }
 
     std::vector<std::string> stopwords;
     if( copy_parameters_to_string_vector( stopwords, parameters, "stopper.word" ) )

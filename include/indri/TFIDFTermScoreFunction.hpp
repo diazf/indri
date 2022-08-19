@@ -49,6 +49,7 @@ namespace indri
       double _termWeightTimesIDFTimesK1;
       double _termWeightTimesidfTimesK1PlusOne;
       bool _okapi;
+      bool _cm;
       
       void _precomputeConstants() {
         _idfTimesK1PlusOne = _inverseDocumentFrequency * ( _k1 + 1 );
@@ -60,7 +61,7 @@ namespace indri
       }
 
     public:
-      TFIDFTermScoreFunction( double idf, double averageDocumentLength, int qTF = 1, double k1 = 1.2, double b = 0.75, bool okapi = false, double k3 = 7 ) {
+      TFIDFTermScoreFunction( double idf, double averageDocumentLength, int qTF = 1, double k1 = 1.2, double b = 0.75, bool okapi = false, double k3 = 7, bool cm = false ) {
         _okapi = okapi;
         _inverseDocumentFrequency = idf;
         _averageDocumentLength = averageDocumentLength;
@@ -74,7 +75,7 @@ namespace indri
         _precomputeConstants();
       }
 
-      TFIDFTermScoreFunction( double idf, double averageDocumentLength, double qtw = 1.0, double k1 = 1.2, double b = 0.75, bool okapi = false, double k3 = 7 ) {
+      TFIDFTermScoreFunction( double idf, double averageDocumentLength, double qtw = 1.0, double k1 = 1.2, double b = 0.75, bool okapi = false, double k3 = 7, bool cm = false ) {
         _okapi = okapi;
         _inverseDocumentFrequency = idf;
         _averageDocumentLength = averageDocumentLength;
@@ -107,7 +108,11 @@ namespace indri
           double numerator = _termWeightTimesidfTimesK1PlusOne * occurrences;
           double denominator = occurrences + _k1TimesOneMinusB + _k1TimesBOverAvgDocLength * documentLength;
           return numerator / denominator; 
-        } else {
+        } else if (_cm) {
+	  if (occurrences > 0)
+	    return 1;
+	  else return 0;
+	} else {
           //simple tfidf
           //
           // Score function is:

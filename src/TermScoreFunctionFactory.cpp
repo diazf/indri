@@ -98,6 +98,18 @@ indri::query::TermScoreFunction* indri::query::TermScoreFunctionFactory::get( co
       return new indri::query::TFIDFTermScoreFunction( idf, avgDocLength, weight, k1, b, true, k3 );
       } else {
       return new indri::query::TFIDFTermScoreFunction( idf, avgDocLength, qtf, k1, b, true, k3 );
+    } 
+  } else if ( method == "cm" ) {
+    double k1 = spec.get( "k1", 1.2 );
+    double b = spec.get( "b", 0.75 );
+    int qtf = spec.get("qtf", 1);
+    double idf = log( ( documentCount + 1 ) / ( documentOccurrences + 0.5 ) );
+    double  avgDocLength = contextSize / double(documentCount);
+    if (spec.exists("qtw")) {
+      double weight = spec.get("qtw", 1.0);
+      return new indri::query::TFIDFTermScoreFunction( idf, avgDocLength, weight, k1, b, false, 0.0, true );
+    } else {
+      return new indri::query::TFIDFTermScoreFunction( idf, avgDocLength, qtf, k1, b, false, 0.0, true );
     }
   }
 

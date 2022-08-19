@@ -400,6 +400,40 @@ void print_document_vector( indri::collection::Repository& r, const char* number
   delete response;
 }
 
+void print_document_vector_words( indri::collection::Repository& r, const char* number ) {
+  indri::server::LocalQueryServer local(r);
+  lemur::api::DOCID_T documentID = atoi( number );
+
+  std::vector<lemur::api::DOCID_T> documentIDs;
+  documentIDs.push_back(documentID);
+
+  indri::server::QueryServerVectorsResponse* response = local.documentVectors( documentIDs );
+
+  if( response->getResults().size() ) {
+    indri::api::DocumentVector* docVector = response->getResults()[0];
+
+    std::cout << "--- Fields ---" << std::endl;
+
+    for( size_t i=0; i<docVector->fields().size(); i++ ) {
+      const indri::api::DocumentVector::Field& field = docVector->fields()[i];
+      std::cout << field.name << " " << field.begin << " " << field.end << " " << field.number << std::endl;
+    }
+
+    std::cout << "--- Terms ---" << std::endl;
+
+    for( size_t i=0; i<docVector->positions().size(); i++ ) {
+      int position = docVector->positions()[i];
+      const std::string& stem = docVector->stems()[position];
+
+      std::cout << stem << " ";
+    }
+
+    delete docVector;
+  }
+
+  delete response;
+}
+
 void print_document_id( indri::collection::Repository& r, const char* an, const char* av ) {
   indri::collection::CompressedCollection* collection = r.collection();
   std::string attributeName = an;
@@ -542,6 +576,9 @@ int main( int argc, char** argv ) {
       } else if( command == "dv" || command == "documentvector" ) {
         REQUIRE_ARGS(4);
         print_document_vector( r, argv[3] );
+      } else if( command == "dvw" || command == "documentvectorwords" ) {
+        REQUIRE_ARGS(4);
+        print_document_vector_words( r, argv[3] );
       } else if( command == "di" || command == "documentid" ) {
         REQUIRE_ARGS(5);
         print_document_id( r, argv[3], argv[4] );
