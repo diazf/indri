@@ -1,6 +1,6 @@
-#line 1 "../src/TextTokenizer.cpp"
+#line 2 "../src/TextTokenizer.cpp"
 
-#line 3 "../src/TextTokenizer.cpp"
+#line 4 "../src/TextTokenizer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -8,17 +8,11 @@
 
 #define yy_create_buffer tok_create_buffer
 #define yy_delete_buffer tok_delete_buffer
-#define yy_scan_buffer tok_scan_buffer
-#define yy_scan_string tok_scan_string
-#define yy_scan_bytes tok_scan_bytes
+#define yy_flex_debug tok_flex_debug
 #define yy_init_buffer tok_init_buffer
 #define yy_flush_buffer tok_flush_buffer
 #define yy_load_buffer_state tok_load_buffer_state
 #define yy_switch_to_buffer tok_switch_to_buffer
-#define yypush_buffer_state tokpush_buffer_state
-#define yypop_buffer_state tokpop_buffer_state
-#define yyensure_buffer_stack tokensure_buffer_stack
-#define yy_flex_debug tok_flex_debug
 #define yyin tokin
 #define yyleng tokleng
 #define yylex toklex
@@ -34,243 +28,9 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 6
-#define YY_FLEX_SUBMINOR_VERSION 4
+#define YY_FLEX_SUBMINOR_VERSION 1
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
-#endif
-
-#ifdef yy_create_buffer
-#define tok_create_buffer_ALREADY_DEFINED
-#else
-#define yy_create_buffer tok_create_buffer
-#endif
-
-#ifdef yy_delete_buffer
-#define tok_delete_buffer_ALREADY_DEFINED
-#else
-#define yy_delete_buffer tok_delete_buffer
-#endif
-
-#ifdef yy_scan_buffer
-#define tok_scan_buffer_ALREADY_DEFINED
-#else
-#define yy_scan_buffer tok_scan_buffer
-#endif
-
-#ifdef yy_scan_string
-#define tok_scan_string_ALREADY_DEFINED
-#else
-#define yy_scan_string tok_scan_string
-#endif
-
-#ifdef yy_scan_bytes
-#define tok_scan_bytes_ALREADY_DEFINED
-#else
-#define yy_scan_bytes tok_scan_bytes
-#endif
-
-#ifdef yy_init_buffer
-#define tok_init_buffer_ALREADY_DEFINED
-#else
-#define yy_init_buffer tok_init_buffer
-#endif
-
-#ifdef yy_flush_buffer
-#define tok_flush_buffer_ALREADY_DEFINED
-#else
-#define yy_flush_buffer tok_flush_buffer
-#endif
-
-#ifdef yy_load_buffer_state
-#define tok_load_buffer_state_ALREADY_DEFINED
-#else
-#define yy_load_buffer_state tok_load_buffer_state
-#endif
-
-#ifdef yy_switch_to_buffer
-#define tok_switch_to_buffer_ALREADY_DEFINED
-#else
-#define yy_switch_to_buffer tok_switch_to_buffer
-#endif
-
-#ifdef yypush_buffer_state
-#define tokpush_buffer_state_ALREADY_DEFINED
-#else
-#define yypush_buffer_state tokpush_buffer_state
-#endif
-
-#ifdef yypop_buffer_state
-#define tokpop_buffer_state_ALREADY_DEFINED
-#else
-#define yypop_buffer_state tokpop_buffer_state
-#endif
-
-#ifdef yyensure_buffer_stack
-#define tokensure_buffer_stack_ALREADY_DEFINED
-#else
-#define yyensure_buffer_stack tokensure_buffer_stack
-#endif
-
-#ifdef yylex
-#define toklex_ALREADY_DEFINED
-#else
-#define yylex toklex
-#endif
-
-#ifdef yyrestart
-#define tokrestart_ALREADY_DEFINED
-#else
-#define yyrestart tokrestart
-#endif
-
-#ifdef yylex_init
-#define toklex_init_ALREADY_DEFINED
-#else
-#define yylex_init toklex_init
-#endif
-
-#ifdef yylex_init_extra
-#define toklex_init_extra_ALREADY_DEFINED
-#else
-#define yylex_init_extra toklex_init_extra
-#endif
-
-#ifdef yylex_destroy
-#define toklex_destroy_ALREADY_DEFINED
-#else
-#define yylex_destroy toklex_destroy
-#endif
-
-#ifdef yyget_debug
-#define tokget_debug_ALREADY_DEFINED
-#else
-#define yyget_debug tokget_debug
-#endif
-
-#ifdef yyset_debug
-#define tokset_debug_ALREADY_DEFINED
-#else
-#define yyset_debug tokset_debug
-#endif
-
-#ifdef yyget_extra
-#define tokget_extra_ALREADY_DEFINED
-#else
-#define yyget_extra tokget_extra
-#endif
-
-#ifdef yyset_extra
-#define tokset_extra_ALREADY_DEFINED
-#else
-#define yyset_extra tokset_extra
-#endif
-
-#ifdef yyget_in
-#define tokget_in_ALREADY_DEFINED
-#else
-#define yyget_in tokget_in
-#endif
-
-#ifdef yyset_in
-#define tokset_in_ALREADY_DEFINED
-#else
-#define yyset_in tokset_in
-#endif
-
-#ifdef yyget_out
-#define tokget_out_ALREADY_DEFINED
-#else
-#define yyget_out tokget_out
-#endif
-
-#ifdef yyset_out
-#define tokset_out_ALREADY_DEFINED
-#else
-#define yyset_out tokset_out
-#endif
-
-#ifdef yyget_leng
-#define tokget_leng_ALREADY_DEFINED
-#else
-#define yyget_leng tokget_leng
-#endif
-
-#ifdef yyget_text
-#define tokget_text_ALREADY_DEFINED
-#else
-#define yyget_text tokget_text
-#endif
-
-#ifdef yyget_lineno
-#define tokget_lineno_ALREADY_DEFINED
-#else
-#define yyget_lineno tokget_lineno
-#endif
-
-#ifdef yyset_lineno
-#define tokset_lineno_ALREADY_DEFINED
-#else
-#define yyset_lineno tokset_lineno
-#endif
-
-#ifdef yywrap
-#define tokwrap_ALREADY_DEFINED
-#else
-#define yywrap tokwrap
-#endif
-
-#ifdef yyalloc
-#define tokalloc_ALREADY_DEFINED
-#else
-#define yyalloc tokalloc
-#endif
-
-#ifdef yyrealloc
-#define tokrealloc_ALREADY_DEFINED
-#else
-#define yyrealloc tokrealloc
-#endif
-
-#ifdef yyfree
-#define tokfree_ALREADY_DEFINED
-#else
-#define yyfree tokfree
-#endif
-
-#ifdef yytext
-#define toktext_ALREADY_DEFINED
-#else
-#define yytext toktext
-#endif
-
-#ifdef yyleng
-#define tokleng_ALREADY_DEFINED
-#else
-#define yyleng tokleng
-#endif
-
-#ifdef yyin
-#define tokin_ALREADY_DEFINED
-#else
-#define yyin tokin
-#endif
-
-#ifdef yyout
-#define tokout_ALREADY_DEFINED
-#else
-#define yyout tokout
-#endif
-
-#ifdef yy_flex_debug
-#define tok_flex_debug_ALREADY_DEFINED
-#else
-#define yy_flex_debug tok_flex_debug
-#endif
-
-#ifdef yylineno
-#define toklineno_ALREADY_DEFINED
-#else
-#define yylineno toklineno
 #endif
 
 /* First, we deal with  platform-specific or compiler-specific issues. */
@@ -306,7 +66,6 @@ typedef int16_t flex_int16_t;
 typedef uint16_t flex_uint16_t;
 typedef int32_t flex_int32_t;
 typedef uint32_t flex_uint32_t;
-typedef uint64_t flex_uint64_t;
 #else
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
@@ -344,15 +103,9 @@ typedef unsigned int flex_uint32_t;
 #define UINT32_MAX             (4294967295U)
 #endif
 
-#ifndef SIZE_MAX
-#define SIZE_MAX               (~(size_t)0)
-#endif
-
 #endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
-
-/* begin standard C++ headers. */
 
 /* TODO: this is always defined, so inline it */
 #define yyconst const
@@ -366,26 +119,32 @@ typedef unsigned int flex_uint32_t;
 /* Returned upon end-of-file. */
 #define YY_NULL 0
 
-/* Promotes a possibly negative, possibly signed char to an
- *   integer in range [0..255] for use as an array index.
+/* Promotes a possibly negative, possibly signed char to an unsigned
+ * integer for use as an array index.  If the signed char is negative,
+ * we want to instead treat it as an 8-bit unsigned char, hence the
+ * double cast.
  */
-#define YY_SC_TO_UI(c) ((YY_CHAR) (c))
+#define YY_SC_TO_UI(c) ((unsigned int) (unsigned char) c)
 
 /* Enter a start condition.  This macro really ought to take a parameter,
  * but we do it the disgusting crufty way forced on us by the ()-less
  * definition of BEGIN.
  */
 #define BEGIN (yy_start) = 1 + 2 *
+
 /* Translate the current start state into a value that can be later handed
  * to BEGIN to return to the state.  The YYSTATE alias is for lex
  * compatibility.
  */
 #define YY_START (((yy_start) - 1) / 2)
 #define YYSTATE YY_START
+
 /* Action number for EOF rule of a given start state. */
 #define YY_STATE_EOF(state) (YY_END_OF_BUFFER + state + 1)
+
 /* Special action meaning "start processing a new file". */
-#define YY_NEW_FILE yyrestart( yyin  )
+#define YY_NEW_FILE tokrestart(tokin  )
+
 #define YY_END_OF_BUFFER_CHAR 0
 
 /* Size of default input buffer. */
@@ -415,14 +174,14 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 typedef size_t yy_size_t;
 #endif
 
-extern yy_size_t yyleng;
+extern int tokleng;
 
-extern FILE *yyin, *yyout;
+extern FILE *tokin, *tokout;
 
 #define EOB_ACT_CONTINUE_SCAN 0
 #define EOB_ACT_END_OF_FILE 1
 #define EOB_ACT_LAST_MATCH 2
-    
+
     #define YY_LESS_LINENO(n)
     #define YY_LINENO_REWIND_TO(ptr)
     
@@ -430,15 +189,16 @@ extern FILE *yyin, *yyout;
 #define yyless(n) \
 	do \
 		{ \
-		/* Undo effects of setting up yytext. */ \
-        int yyless_macro_arg = (n); \
+		/* Undo effects of setting up toktext. */ \
+        yy_size_t yyless_macro_arg = (n); \
         YY_LESS_LINENO(yyless_macro_arg);\
 		*yy_cp = (yy_hold_char); \
 		YY_RESTORE_YY_MORE_OFFSET \
 		(yy_c_buf_p) = yy_cp = yy_bp + yyless_macro_arg - YY_MORE_ADJ; \
-		YY_DO_BEFORE_ACTION; /* set up yytext again */ \
+		YY_DO_BEFORE_ACTION; /* set up toktext again */ \
 		} \
 	while ( 0 )
+
 #define unput(c) yyunput( c, (yytext_ptr)  )
 
 #ifndef YY_STRUCT_YY_BUFFER_STATE
@@ -458,7 +218,7 @@ struct yy_buffer_state
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	yy_size_t yy_n_chars;
+	int yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -481,7 +241,7 @@ struct yy_buffer_state
 
     int yy_bs_lineno; /**< The line count. */
     int yy_bs_column; /**< The column count. */
-
+    
 	/* Whether to try to fill the input buffer when we reach the
 	 * end of it.
 	 */
@@ -498,8 +258,8 @@ struct yy_buffer_state
 	 * possible backing-up.
 	 *
 	 * When we actually see the EOF, we change the status to "new"
-	 * (via yyrestart()), so that the user can continue scanning by
-	 * just pointing yyin at a new input file.
+	 * (via tokrestart()), so that the user can continue scanning by
+	 * just pointing tokin at a new input file.
 	 */
 #define YY_BUFFER_EOF_PENDING 2
 
@@ -520,88 +280,95 @@ static YY_BUFFER_STATE * yy_buffer_stack = NULL; /**< Stack as an array. */
 #define YY_CURRENT_BUFFER ( (yy_buffer_stack) \
                           ? (yy_buffer_stack)[(yy_buffer_stack_top)] \
                           : NULL)
+
 /* Same as previous macro, but useful when we know that the buffer stack is not
  * NULL or when we need an lvalue. For internal use only.
  */
 #define YY_CURRENT_BUFFER_LVALUE (yy_buffer_stack)[(yy_buffer_stack_top)]
 
-/* yy_hold_char holds the character lost when yytext is formed. */
+/* yy_hold_char holds the character lost when toktext is formed. */
 static char yy_hold_char;
-static yy_size_t yy_n_chars;		/* number of characters read into yy_ch_buf */
-yy_size_t yyleng;
+static int yy_n_chars;		/* number of characters read into yy_ch_buf */
+int tokleng;
 
 /* Points to current character in buffer. */
 static char *yy_c_buf_p = NULL;
 static int yy_init = 0;		/* whether we need to initialize */
 static int yy_start = 0;	/* start state number */
 
-/* Flag which is used to allow yywrap()'s to do buffer switches
- * instead of setting up a fresh yyin.  A bit of a hack ...
+/* Flag which is used to allow tokwrap()'s to do buffer switches
+ * instead of setting up a fresh tokin.  A bit of a hack ...
  */
 static int yy_did_buffer_switch_on_eof;
 
-void yyrestart ( FILE *input_file  );
-void yy_switch_to_buffer ( YY_BUFFER_STATE new_buffer  );
-YY_BUFFER_STATE yy_create_buffer ( FILE *file, int size  );
-void yy_delete_buffer ( YY_BUFFER_STATE b  );
-void yy_flush_buffer ( YY_BUFFER_STATE b  );
-void yypush_buffer_state ( YY_BUFFER_STATE new_buffer  );
-void yypop_buffer_state ( void );
+void tokrestart (FILE *input_file  );
+void tok_switch_to_buffer (YY_BUFFER_STATE new_buffer  );
+YY_BUFFER_STATE tok_create_buffer (FILE *file,int size  );
+void tok_delete_buffer (YY_BUFFER_STATE b  );
+void tok_flush_buffer (YY_BUFFER_STATE b  );
+void tokpush_buffer_state (YY_BUFFER_STATE new_buffer  );
+void tokpop_buffer_state (void );
 
-static void yyensure_buffer_stack ( void );
-static void yy_load_buffer_state ( void );
-static void yy_init_buffer ( YY_BUFFER_STATE b, FILE *file  );
-#define YY_FLUSH_BUFFER yy_flush_buffer( YY_CURRENT_BUFFER )
+static void tokensure_buffer_stack (void );
+static void tok_load_buffer_state (void );
+static void tok_init_buffer (YY_BUFFER_STATE b,FILE *file  );
 
-YY_BUFFER_STATE yy_scan_buffer ( char *base, yy_size_t size  );
-YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
-YY_BUFFER_STATE yy_scan_bytes ( const char *bytes, yy_size_t len  );
+#define YY_FLUSH_BUFFER tok_flush_buffer(YY_CURRENT_BUFFER )
 
-void *yyalloc ( yy_size_t  );
-void *yyrealloc ( void *, yy_size_t  );
-void yyfree ( void *  );
+YY_BUFFER_STATE tok_scan_buffer (char *base,yy_size_t size  );
+YY_BUFFER_STATE tok_scan_string (yyconst char *yy_str  );
+YY_BUFFER_STATE tok_scan_bytes (yyconst char *bytes,int len  );
 
-#define yy_new_buffer yy_create_buffer
+void *tokalloc (yy_size_t  );
+void *tokrealloc (void *,yy_size_t  );
+void tokfree (void *  );
+
+#define yy_new_buffer tok_create_buffer
+
 #define yy_set_interactive(is_interactive) \
 	{ \
 	if ( ! YY_CURRENT_BUFFER ){ \
-        yyensure_buffer_stack (); \
+        tokensure_buffer_stack (); \
 		YY_CURRENT_BUFFER_LVALUE =    \
-            yy_create_buffer( yyin, YY_BUF_SIZE ); \
+            tok_create_buffer(tokin,YY_BUF_SIZE ); \
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_is_interactive = is_interactive; \
 	}
+
 #define yy_set_bol(at_bol) \
 	{ \
 	if ( ! YY_CURRENT_BUFFER ){\
-        yyensure_buffer_stack (); \
+        tokensure_buffer_stack (); \
 		YY_CURRENT_BUFFER_LVALUE =    \
-            yy_create_buffer( yyin, YY_BUF_SIZE ); \
+            tok_create_buffer(tokin,YY_BUF_SIZE ); \
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_at_bol = at_bol; \
 	}
+
 #define YY_AT_BOL() (YY_CURRENT_BUFFER_LVALUE->yy_at_bol)
 
 /* Begin user sect3 */
 
 #define tokwrap() (/*CONSTCOND*/1)
 #define YY_SKIP_YYWRAP
-typedef flex_uint8_t YY_CHAR;
 
-FILE *yyin = NULL, *yyout = NULL;
+typedef unsigned char YY_CHAR;
+
+FILE *tokin = NULL, *tokout = NULL;
 
 typedef int yy_state_type;
 
-extern int yylineno;
-int yylineno = 1;
+extern int toklineno;
 
-extern char *yytext;
+int toklineno = 1;
+
+extern char *toktext;
 #ifdef yytext_ptr
 #undef yytext_ptr
 #endif
-#define yytext_ptr yytext
+#define yytext_ptr toktext
 
-static const flex_int16_t yy_nxt[][256] =
+static yyconst flex_int16_t yy_nxt[][256] =
     {
     {
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
@@ -2343,20 +2110,21 @@ static const flex_int16_t yy_nxt[][256] =
 
     } ;
 
-static yy_state_type yy_get_previous_state ( void );
-static yy_state_type yy_try_NUL_trans ( yy_state_type current_state  );
-static int yy_get_next_buffer ( void );
-static void yynoreturn yy_fatal_error ( const char* msg  );
+static yy_state_type yy_get_previous_state (void );
+static yy_state_type yy_try_NUL_trans (yy_state_type current_state  );
+static int yy_get_next_buffer (void );
+static void yynoreturn yy_fatal_error (yyconst char* msg  );
 
 /* Done after the current pattern has been matched and before the
- * corresponding action - sets up yytext.
+ * corresponding action - sets up toktext.
  */
 #define YY_DO_BEFORE_ACTION \
 	(yytext_ptr) = yy_bp; \
-	yyleng = (yy_size_t) (yy_cp - yy_bp); \
+	tokleng = (int) (yy_cp - yy_bp); \
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
+
 #define YY_NUM_RULES 16
 #define YY_END_OF_BUFFER 17
 /* This struct is not used in this scanner,
@@ -2366,7 +2134,7 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[55] =
+static yyconst flex_int16_t yy_accept[55] =
     {   0,
         0,    0,    0,    0,   17,   15,   14,   15,   11,   15,
        11,   15,   11,   13,    2,    4,    0,    0,   11,   12,
@@ -2379,7 +2147,7 @@ static const flex_int16_t yy_accept[55] =
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
 
-static const yy_state_type yy_NUL_trans[55] =
+static yyconst yy_state_type yy_NUL_trans[55] =
     {   0,
         6,    6,   15,   15,    0,    0,    0,    0,    0,    0,
         0,    0,    0,    0,   28,   29,    0,    0,    0,    0,
@@ -2389,8 +2157,8 @@ static const yy_state_type yy_NUL_trans[55] =
         0,   53,   53,    0
     } ;
 
-extern int yy_flex_debug;
-int yy_flex_debug = 0;
+extern int tok_flex_debug;
+int tok_flex_debug = 0;
 
 /* The intent behind this definition is that it'll catch
  * any uses of REJECT which flex missed.
@@ -2399,7 +2167,7 @@ int yy_flex_debug = 0;
 #define yymore() yymore_used_but_not_detected
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
-char *yytext;
+char *toktext;
 #line 1 "../src/TextTokenizer.l"
 #line 6 "../src/TextTokenizer.l"
 
@@ -2438,9 +2206,8 @@ static long byte_position;
 #define ASCII_TOKEN   3
 #define UTF8_TOKEN    4
 
-#line 2441 "../src/TextTokenizer.cpp"
 
-#line 2443 "../src/TextTokenizer.cpp"
+#line 2211 "../src/TextTokenizer.cpp"
 
 #define INITIAL 0
 #define COMMENT 1
@@ -2457,36 +2224,36 @@ static long byte_position;
 #define YY_EXTRA_TYPE void *
 #endif
 
-static int yy_init_globals ( void );
+static int yy_init_globals (void );
 
 /* Accessor methods to globals.
    These are made visible to non-reentrant scanners for convenience. */
 
-int yylex_destroy ( void );
+int toklex_destroy (void );
 
-int yyget_debug ( void );
+int tokget_debug (void );
 
-void yyset_debug ( int debug_flag  );
+void tokset_debug (int debug_flag  );
 
-YY_EXTRA_TYPE yyget_extra ( void );
+YY_EXTRA_TYPE tokget_extra (void );
 
-void yyset_extra ( YY_EXTRA_TYPE user_defined  );
+void tokset_extra (YY_EXTRA_TYPE user_defined  );
 
-FILE *yyget_in ( void );
+FILE *tokget_in (void );
 
-void yyset_in  ( FILE * _in_str  );
+void tokset_in  (FILE * _in_str  );
 
-FILE *yyget_out ( void );
+FILE *tokget_out (void );
 
-void yyset_out  ( FILE * _out_str  );
+void tokset_out  (FILE * _out_str  );
 
-			yy_size_t yyget_leng ( void );
+			int tokget_leng (void );
 
-char *yyget_text ( void );
+char *tokget_text (void );
 
-int yyget_lineno ( void );
+int tokget_lineno (void );
 
-void yyset_lineno ( int _line_number  );
+void tokset_lineno (int _line_number  );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -2494,31 +2261,32 @@ void yyset_lineno ( int _line_number  );
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus
-extern "C" int yywrap ( void );
+extern "C" int tokwrap (void );
 #else
-extern int yywrap ( void );
+extern int tokwrap (void );
 #endif
 #endif
 
 #ifndef YY_NO_UNPUT
     
-    static void yyunput ( int c, char *buf_ptr  );
+    static void yyunput (int c,char *buf_ptr  );
     
 #endif
 
 #ifndef yytext_ptr
-static void yy_flex_strncpy ( char *, const char *, int );
+static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen ( const char * );
+static int yy_flex_strlen (yyconst char * );
 #endif
 
 #ifndef YY_NO_INPUT
+
 #ifdef __cplusplus
-static int yyinput ( void );
+static int yyinput (void );
 #else
-static int input ( void );
+static int input (void );
 #endif
 
 #endif
@@ -2538,7 +2306,7 @@ static int input ( void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO do { if (fwrite( yytext, (size_t) yyleng, 1, yyout )) {} } while (0)
+#define ECHO do { if (fwrite( toktext, (size_t) tokleng, 1, tokout )) {} } while (0)
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -2549,20 +2317,20 @@ static int input ( void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		yy_size_t n; \
+		int n; \
 		for ( n = 0; n < max_size && \
-			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
+			     (c = getc( tokin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
 		if ( c == '\n' ) \
 			buf[n++] = (char) c; \
-		if ( c == EOF && ferror( yyin ) ) \
+		if ( c == EOF && ferror( tokin ) ) \
 			YY_FATAL_ERROR( "input in flex scanner failed" ); \
 		result = n; \
 		} \
 	else \
 		{ \
 		errno=0; \
-		while ( (result = (int) fread(buf, 1, (yy_size_t) max_size, yyin)) == 0 && ferror(yyin)) \
+		while ( (result = (int) fread(buf, 1, (yy_size_t) max_size, tokin)) == 0 && ferror(tokin)) \
 			{ \
 			if( errno != EINTR) \
 				{ \
@@ -2570,7 +2338,7 @@ static int input ( void );
 				break; \
 				} \
 			errno=0; \
-			clearerr(yyin); \
+			clearerr(tokin); \
 			} \
 		}\
 \
@@ -2603,12 +2371,12 @@ static int input ( void );
 #ifndef YY_DECL
 #define YY_DECL_IS_OURS 1
 
-extern int yylex (void);
+extern int toklex (void);
 
-#define YY_DECL int yylex (void)
+#define YY_DECL int toklex (void)
 #endif /* !YY_DECL */
 
-/* Code executed at the beginning of each rule, after yytext and yyleng
+/* Code executed at the beginning of each rule, after toktext and tokleng
  * have been set up.
  */
 #ifndef YY_USER_ACTION
@@ -2642,32 +2410,32 @@ YY_DECL
 		if ( ! (yy_start) )
 			(yy_start) = 1;	/* first start state */
 
-		if ( ! yyin )
-			yyin = stdin;
+		if ( ! tokin )
+			tokin = stdin;
 
-		if ( ! yyout )
-			yyout = stdout;
+		if ( ! tokout )
+			tokout = stdout;
 
 		if ( ! YY_CURRENT_BUFFER ) {
-			yyensure_buffer_stack ();
+			tokensure_buffer_stack ();
 			YY_CURRENT_BUFFER_LVALUE =
-				yy_create_buffer( yyin, YY_BUF_SIZE );
+				tok_create_buffer(tokin,YY_BUF_SIZE );
 		}
 
-		yy_load_buffer_state(  );
+		tok_load_buffer_state( );
 		}
 
 	{
 #line 44 "../src/TextTokenizer.l"
 
 
-#line 2664 "../src/TextTokenizer.cpp"
+#line 2433 "../src/TextTokenizer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
 		yy_cp = (yy_c_buf_p);
 
-		/* Support of yytext. */
+		/* Support of toktext. */
 		*yy_cp = (yy_hold_char);
 
 		/* yy_bp points to the position in yy_ch_buf of the start of
@@ -2793,7 +2561,7 @@ YY_RULE_SETUP
 #line 63 "../src/TextTokenizer.l"
 ECHO;
 	YY_BREAK
-#line 2796 "../src/TextTokenizer.cpp"
+#line 2565 "../src/TextTokenizer.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 	yyterminate();
@@ -2811,15 +2579,15 @@ case YY_STATE_EOF(COMMENT):
 			{
 			/* We're scanning a new file or input source.  It's
 			 * possible that this happened because the user
-			 * just pointed yyin at a new source and called
-			 * yylex().  If so, then we have to assure
+			 * just pointed tokin at a new source and called
+			 * toklex().  If so, then we have to assure
 			 * consistency between YY_CURRENT_BUFFER and our
 			 * globals.  Here is the right place to do so, because
 			 * this is the first action (other than possibly a
 			 * back-up) that will match for the new input source.
 			 */
 			(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
-			YY_CURRENT_BUFFER_LVALUE->yy_input_file = yyin;
+			YY_CURRENT_BUFFER_LVALUE->yy_input_file = tokin;
 			YY_CURRENT_BUFFER_LVALUE->yy_buffer_status = YY_BUFFER_NORMAL;
 			}
 
@@ -2872,11 +2640,11 @@ case YY_STATE_EOF(COMMENT):
 				{
 				(yy_did_buffer_switch_on_eof) = 0;
 
-				if ( yywrap(  ) )
+				if ( tokwrap( ) )
 					{
 					/* Note: because we've taken care in
 					 * yy_get_next_buffer() to have set up
-					 * yytext, we can now set up
+					 * toktext, we can now set up
 					 * yy_c_buf_p so that if some total
 					 * hoser (like flex itself) wants to
 					 * call the scanner after we return the
@@ -2926,7 +2694,7 @@ case YY_STATE_EOF(COMMENT):
 	} /* end of action switch */
 		} /* end of scanning one token */
 	} /* end of user's declarations */
-} /* end of yylex */
+} /* end of toklex */
 
 /* yy_get_next_buffer - try to read in a new buffer
  *
@@ -2939,7 +2707,7 @@ static int yy_get_next_buffer (void)
 {
     	char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
 	char *source = (yytext_ptr);
-	int number_to_move, i;
+	yy_size_t number_to_move, i;
 	int ret_val;
 
 	if ( (yy_c_buf_p) > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars) + 1] )
@@ -2968,7 +2736,7 @@ static int yy_get_next_buffer (void)
 	/* Try to read more data. */
 
 	/* First move last chars to start of buffer. */
-	number_to_move = (int) ((yy_c_buf_p) - (yytext_ptr) - 1);
+	number_to_move = (yy_size_t) ((yy_c_buf_p) - (yytext_ptr)) - 1;
 
 	for ( i = 0; i < number_to_move; ++i )
 		*(dest++) = *(source++);
@@ -2981,7 +2749,7 @@ static int yy_get_next_buffer (void)
 
 	else
 		{
-			yy_size_t num_to_read =
+			int num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while ( num_to_read <= 0 )
@@ -2995,7 +2763,7 @@ static int yy_get_next_buffer (void)
 
 			if ( b->yy_is_our_buffer )
 				{
-				yy_size_t new_size = b->yy_buf_size * 2;
+				int new_size = b->yy_buf_size * 2;
 
 				if ( new_size <= 0 )
 					b->yy_buf_size += b->yy_buf_size / 8;
@@ -3004,8 +2772,7 @@ static int yy_get_next_buffer (void)
 
 				b->yy_ch_buf = (char *)
 					/* Include room in for 2 EOB chars. */
-					yyrealloc( (void *) b->yy_ch_buf,
-							 (yy_size_t) (b->yy_buf_size + 2)  );
+					tokrealloc((void *) b->yy_ch_buf,(yy_size_t) (b->yy_buf_size + 2)  );
 				}
 			else
 				/* Can't grow it, we don't own it. */
@@ -3037,7 +2804,7 @@ static int yy_get_next_buffer (void)
 		if ( number_to_move == YY_MORE_ADJ )
 			{
 			ret_val = EOB_ACT_END_OF_FILE;
-			yyrestart( yyin  );
+			tokrestart(tokin  );
 			}
 
 		else
@@ -3051,15 +2818,12 @@ static int yy_get_next_buffer (void)
 	else
 		ret_val = EOB_ACT_CONTINUE_SCAN;
 
-	if (((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
+	if ((int) ((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
 		/* Extend the array by 50%, plus the number we really need. */
-		yy_size_t new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
-		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) yyrealloc(
-			(void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, (yy_size_t) new_size  );
+		int new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
+		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) tokrealloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,(yy_size_t) new_size  );
 		if ( ! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
 			YY_FATAL_ERROR( "out of dynamic memory in yy_get_next_buffer()" );
-		/* "- 2" to take care of EOB's */
-		YY_CURRENT_BUFFER_LVALUE->yy_buf_size = (int) (new_size - 2);
 	}
 
 	(yy_n_chars) += number_to_move;
@@ -3131,13 +2895,13 @@ static int yy_get_next_buffer (void)
     
     yy_cp = (yy_c_buf_p);
 
-	/* undo effects of setting up yytext */
+	/* undo effects of setting up toktext */
 	*yy_cp = (yy_hold_char);
 
 	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
 		{ /* need to shift things up to make room */
 		/* +2 for EOB chars. */
-		yy_size_t number_to_move = (yy_n_chars) + 2;
+		int number_to_move = (yy_n_chars) + 2;
 		char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
 					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
 		char *source =
@@ -3188,7 +2952,7 @@ static int yy_get_next_buffer (void)
 
 		else
 			{ /* need more input */
-			yy_size_t offset = (yy_c_buf_p) - (yytext_ptr);
+			int offset = (yy_c_buf_p) - (yytext_ptr);
 			++(yy_c_buf_p);
 
 			switch ( yy_get_next_buffer(  ) )
@@ -3205,13 +2969,13 @@ static int yy_get_next_buffer (void)
 					 */
 
 					/* Reset buffer status. */
-					yyrestart( yyin );
+					tokrestart(tokin );
 
 					/*FALLTHROUGH*/
 
 				case EOB_ACT_END_OF_FILE:
 					{
-					if ( yywrap(  ) )
+					if ( tokwrap( ) )
 						return 0;
 
 					if ( ! (yy_did_buffer_switch_on_eof) )
@@ -3231,7 +2995,7 @@ static int yy_get_next_buffer (void)
 		}
 
 	c = *(unsigned char *) (yy_c_buf_p);	/* cast for 8-bit char's */
-	*(yy_c_buf_p) = '\0';	/* preserve yytext */
+	*(yy_c_buf_p) = '\0';	/* preserve toktext */
 	(yy_hold_char) = *++(yy_c_buf_p);
 
 	return c;
@@ -3243,32 +3007,32 @@ static int yy_get_next_buffer (void)
  * 
  * @note This function does not reset the start condition to @c INITIAL .
  */
-    void yyrestart  (FILE * input_file )
+    void tokrestart  (FILE * input_file )
 {
     
 	if ( ! YY_CURRENT_BUFFER ){
-        yyensure_buffer_stack ();
+        tokensure_buffer_stack ();
 		YY_CURRENT_BUFFER_LVALUE =
-            yy_create_buffer( yyin, YY_BUF_SIZE );
+            tok_create_buffer(tokin,YY_BUF_SIZE );
 	}
 
-	yy_init_buffer( YY_CURRENT_BUFFER, input_file );
-	yy_load_buffer_state(  );
+	tok_init_buffer(YY_CURRENT_BUFFER,input_file );
+	tok_load_buffer_state( );
 }
 
 /** Switch to a different input buffer.
  * @param new_buffer The new input buffer.
  * 
  */
-    void yy_switch_to_buffer  (YY_BUFFER_STATE  new_buffer )
+    void tok_switch_to_buffer  (YY_BUFFER_STATE  new_buffer )
 {
     
 	/* TODO. We should be able to replace this entire function body
 	 * with
-	 *		yypop_buffer_state();
-	 *		yypush_buffer_state(new_buffer);
+	 *		tokpop_buffer_state();
+	 *		tokpush_buffer_state(new_buffer);
      */
-	yyensure_buffer_stack ();
+	tokensure_buffer_stack ();
 	if ( YY_CURRENT_BUFFER == new_buffer )
 		return;
 
@@ -3281,21 +3045,21 @@ static int yy_get_next_buffer (void)
 		}
 
 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
-	yy_load_buffer_state(  );
+	tok_load_buffer_state( );
 
 	/* We don't actually know whether we did this switch during
-	 * EOF (yywrap()) processing, but the only time this flag
-	 * is looked at is after yywrap() is called, so it's safe
+	 * EOF (tokwrap()) processing, but the only time this flag
+	 * is looked at is after tokwrap() is called, so it's safe
 	 * to go ahead and always set it.
 	 */
 	(yy_did_buffer_switch_on_eof) = 1;
 }
 
-static void yy_load_buffer_state  (void)
+static void tok_load_buffer_state  (void)
 {
     	(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
 	(yytext_ptr) = (yy_c_buf_p) = YY_CURRENT_BUFFER_LVALUE->yy_buf_pos;
-	yyin = YY_CURRENT_BUFFER_LVALUE->yy_input_file;
+	tokin = YY_CURRENT_BUFFER_LVALUE->yy_input_file;
 	(yy_hold_char) = *(yy_c_buf_p);
 }
 
@@ -3305,35 +3069,35 @@ static void yy_load_buffer_state  (void)
  * 
  * @return the allocated buffer state.
  */
-    YY_BUFFER_STATE yy_create_buffer  (FILE * file, int  size )
+    YY_BUFFER_STATE tok_create_buffer  (FILE * file, int  size )
 {
 	YY_BUFFER_STATE b;
     
-	b = (YY_BUFFER_STATE) yyalloc( sizeof( struct yy_buffer_state )  );
+	b = (YY_BUFFER_STATE) tokalloc(sizeof( struct yy_buffer_state )  );
 	if ( ! b )
-		YY_FATAL_ERROR( "out of dynamic memory in yy_create_buffer()" );
+		YY_FATAL_ERROR( "out of dynamic memory in tok_create_buffer()" );
 
 	b->yy_buf_size = size;
 
 	/* yy_ch_buf has to be 2 characters longer than the size given because
 	 * we need to put in 2 end-of-buffer characters.
 	 */
-	b->yy_ch_buf = (char *) yyalloc( (yy_size_t) (b->yy_buf_size + 2)  );
+	b->yy_ch_buf = (char *) tokalloc((yy_size_t) (b->yy_buf_size + 2)  );
 	if ( ! b->yy_ch_buf )
-		YY_FATAL_ERROR( "out of dynamic memory in yy_create_buffer()" );
+		YY_FATAL_ERROR( "out of dynamic memory in tok_create_buffer()" );
 
 	b->yy_is_our_buffer = 1;
 
-	yy_init_buffer( b, file );
+	tok_init_buffer(b,file );
 
 	return b;
 }
 
 /** Destroy the buffer.
- * @param b a buffer created with yy_create_buffer()
+ * @param b a buffer created with tok_create_buffer()
  * 
  */
-    void yy_delete_buffer (YY_BUFFER_STATE  b )
+    void tok_delete_buffer (YY_BUFFER_STATE  b )
 {
     
 	if ( ! b )
@@ -3343,27 +3107,27 @@ static void yy_load_buffer_state  (void)
 		YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE) 0;
 
 	if ( b->yy_is_our_buffer )
-		yyfree( (void *) b->yy_ch_buf  );
+		tokfree((void *) b->yy_ch_buf  );
 
-	yyfree( (void *) b  );
+	tokfree((void *) b  );
 }
 
 /* Initializes or reinitializes a buffer.
  * This function is sometimes called more than once on the same buffer,
- * such as during a yyrestart() or at EOF.
+ * such as during a tokrestart() or at EOF.
  */
-    static void yy_init_buffer  (YY_BUFFER_STATE  b, FILE * file )
+    static void tok_init_buffer  (YY_BUFFER_STATE  b, FILE * file )
 
 {
 	int oerrno = errno;
     
-	yy_flush_buffer( b );
+	tok_flush_buffer(b );
 
 	b->yy_input_file = file;
 	b->yy_fill_buffer = 1;
 
-    /* If b is the current buffer, then yy_init_buffer was _probably_
-     * called from yyrestart() or through yy_get_next_buffer.
+    /* If b is the current buffer, then tok_init_buffer was _probably_
+     * called from tokrestart() or through yy_get_next_buffer.
      * In that case, we don't want to reset the lineno or column.
      */
     if (b != YY_CURRENT_BUFFER){
@@ -3380,7 +3144,7 @@ static void yy_load_buffer_state  (void)
  * @param b the buffer state to be flushed, usually @c YY_CURRENT_BUFFER.
  * 
  */
-    void yy_flush_buffer (YY_BUFFER_STATE  b )
+    void tok_flush_buffer (YY_BUFFER_STATE  b )
 {
     	if ( ! b )
 		return;
@@ -3400,7 +3164,7 @@ static void yy_load_buffer_state  (void)
 	b->yy_buffer_status = YY_BUFFER_NEW;
 
 	if ( b == YY_CURRENT_BUFFER )
-		yy_load_buffer_state(  );
+		tok_load_buffer_state( );
 }
 
 /** Pushes the new state onto the stack. The new state becomes
@@ -3409,14 +3173,14 @@ static void yy_load_buffer_state  (void)
  *  @param new_buffer The new state.
  *  
  */
-void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
+void tokpush_buffer_state (YY_BUFFER_STATE new_buffer )
 {
     	if (new_buffer == NULL)
 		return;
 
-	yyensure_buffer_stack();
+	tokensure_buffer_stack();
 
-	/* This block is copied from yy_switch_to_buffer. */
+	/* This block is copied from tok_switch_to_buffer. */
 	if ( YY_CURRENT_BUFFER )
 		{
 		/* Flush out information for old buffer. */
@@ -3430,8 +3194,8 @@ void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
 		(yy_buffer_stack_top)++;
 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
 
-	/* copied from yy_switch_to_buffer. */
-	yy_load_buffer_state(  );
+	/* copied from tok_switch_to_buffer. */
+	tok_load_buffer_state( );
 	(yy_did_buffer_switch_on_eof) = 1;
 }
 
@@ -3439,18 +3203,18 @@ void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
  *  The next element becomes the new top.
  *  
  */
-void yypop_buffer_state (void)
+void tokpop_buffer_state (void)
 {
     	if (!YY_CURRENT_BUFFER)
 		return;
 
-	yy_delete_buffer(YY_CURRENT_BUFFER );
+	tok_delete_buffer(YY_CURRENT_BUFFER );
 	YY_CURRENT_BUFFER_LVALUE = NULL;
 	if ((yy_buffer_stack_top) > 0)
 		--(yy_buffer_stack_top);
 
 	if (YY_CURRENT_BUFFER) {
-		yy_load_buffer_state(  );
+		tok_load_buffer_state( );
 		(yy_did_buffer_switch_on_eof) = 1;
 	}
 }
@@ -3458,9 +3222,9 @@ void yypop_buffer_state (void)
 /* Allocates the stack if it does not exist.
  *  Guarantees space for at least one push.
  */
-static void yyensure_buffer_stack (void)
+static void tokensure_buffer_stack (void)
 {
-	yy_size_t num_to_alloc;
+	int num_to_alloc;
     
 	if (!(yy_buffer_stack)) {
 
@@ -3469,14 +3233,14 @@ static void yyensure_buffer_stack (void)
 		 * immediate realloc on the next call.
          */
       num_to_alloc = 1; /* After all that talk, this was set to 1 anyways... */
-		(yy_buffer_stack) = (struct yy_buffer_state**)yyalloc
+		(yy_buffer_stack) = (struct yy_buffer_state**)tokalloc
 								(num_to_alloc * sizeof(struct yy_buffer_state*)
 								);
 		if ( ! (yy_buffer_stack) )
-			YY_FATAL_ERROR( "out of dynamic memory in yyensure_buffer_stack()" );
-
+			YY_FATAL_ERROR( "out of dynamic memory in tokensure_buffer_stack()" );
+								  
 		memset((yy_buffer_stack), 0, num_to_alloc * sizeof(struct yy_buffer_state*));
-
+				
 		(yy_buffer_stack_max) = num_to_alloc;
 		(yy_buffer_stack_top) = 0;
 		return;
@@ -3488,12 +3252,12 @@ static void yyensure_buffer_stack (void)
 		yy_size_t grow_size = 8 /* arbitrary grow size */;
 
 		num_to_alloc = (yy_buffer_stack_max) + grow_size;
-		(yy_buffer_stack) = (struct yy_buffer_state**)yyrealloc
+		(yy_buffer_stack) = (struct yy_buffer_state**)tokrealloc
 								((yy_buffer_stack),
 								num_to_alloc * sizeof(struct yy_buffer_state*)
 								);
 		if ( ! (yy_buffer_stack) )
-			YY_FATAL_ERROR( "out of dynamic memory in yyensure_buffer_stack()" );
+			YY_FATAL_ERROR( "out of dynamic memory in tokensure_buffer_stack()" );
 
 		/* zero only the new slots.*/
 		memset((yy_buffer_stack) + (yy_buffer_stack_max), 0, grow_size * sizeof(struct yy_buffer_state*));
@@ -3505,9 +3269,9 @@ static void yyensure_buffer_stack (void)
  * @param base the character buffer
  * @param size the size in bytes of the character buffer
  * 
- * @return the newly allocated buffer state object.
+ * @return the newly allocated buffer state object. 
  */
-YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
+YY_BUFFER_STATE tok_scan_buffer  (char * base, yy_size_t  size )
 {
 	YY_BUFFER_STATE b;
     
@@ -3517,9 +3281,9 @@ YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
 		/* They forgot to leave room for the EOB's. */
 		return NULL;
 
-	b = (YY_BUFFER_STATE) yyalloc( sizeof( struct yy_buffer_state )  );
+	b = (YY_BUFFER_STATE) tokalloc(sizeof( struct yy_buffer_state )  );
 	if ( ! b )
-		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_buffer()" );
+		YY_FATAL_ERROR( "out of dynamic memory in tok_scan_buffer()" );
 
 	b->yy_buf_size = (int) (size - 2);	/* "- 2" to take care of EOB's */
 	b->yy_buf_pos = b->yy_ch_buf = base;
@@ -3531,53 +3295,53 @@ YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
 	b->yy_fill_buffer = 0;
 	b->yy_buffer_status = YY_BUFFER_NEW;
 
-	yy_switch_to_buffer( b  );
+	tok_switch_to_buffer(b  );
 
 	return b;
 }
 
-/** Setup the input buffer state to scan a string. The next call to yylex() will
+/** Setup the input buffer state to scan a string. The next call to toklex() will
  * scan from a @e copy of @a str.
  * @param yystr a NUL-terminated string to scan
  * 
  * @return the newly allocated buffer state object.
  * @note If you want to scan bytes that may contain NUL values, then use
- *       yy_scan_bytes() instead.
+ *       tok_scan_bytes() instead.
  */
-YY_BUFFER_STATE yy_scan_string (const char * yystr )
+YY_BUFFER_STATE tok_scan_string (yyconst char * yystr )
 {
     
-	return yy_scan_bytes( yystr, (int) strlen(yystr) );
+	return tok_scan_bytes(yystr,(int) strlen(yystr) );
 }
 
-/** Setup the input buffer state to scan the given bytes. The next call to yylex() will
+/** Setup the input buffer state to scan the given bytes. The next call to toklex() will
  * scan from a @e copy of @a bytes.
  * @param yybytes the byte buffer to scan
  * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE yy_scan_bytes  (const char * yybytes, yy_size_t  _yybytes_len )
+YY_BUFFER_STATE tok_scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
 {
 	YY_BUFFER_STATE b;
 	char *buf;
 	yy_size_t n;
-	yy_size_t i;
+	int i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = (yy_size_t) (_yybytes_len + 2);
-	buf = (char *) yyalloc( n  );
+	buf = (char *) tokalloc(n  );
 	if ( ! buf )
-		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_bytes()" );
+		YY_FATAL_ERROR( "out of dynamic memory in tok_scan_bytes()" );
 
 	for ( i = 0; i < _yybytes_len; ++i )
 		buf[i] = yybytes[i];
 
 	buf[_yybytes_len] = buf[_yybytes_len+1] = YY_END_OF_BUFFER_CHAR;
 
-	b = yy_scan_buffer( buf, n );
+	b = tok_scan_buffer(buf,n );
 	if ( ! b )
-		YY_FATAL_ERROR( "bad buffer in yy_scan_bytes()" );
+		YY_FATAL_ERROR( "bad buffer in tok_scan_bytes()" );
 
 	/* It's okay to grow etc. this buffer, and we should throw it
 	 * away when we're done.
@@ -3591,9 +3355,9 @@ YY_BUFFER_STATE yy_scan_bytes  (const char * yybytes, yy_size_t  _yybytes_len )
 #define YY_EXIT_FAILURE 2
 #endif
 
-static void yynoreturn yy_fatal_error (const char* msg )
+static void yynoreturn yy_fatal_error (yyconst char* msg )
 {
-			fprintf( stderr, "%s\n", msg );
+			(void) fprintf( stderr, "%s\n", msg );
 	exit( YY_EXIT_FAILURE );
 }
 
@@ -3603,14 +3367,14 @@ static void yynoreturn yy_fatal_error (const char* msg )
 #define yyless(n) \
 	do \
 		{ \
-		/* Undo effects of setting up yytext. */ \
+		/* Undo effects of setting up toktext. */ \
         yy_size_t yyless_macro_arg = (n); \
         YY_LESS_LINENO(yyless_macro_arg);\
-		yytext[yyleng] = (yy_hold_char); \
-		(yy_c_buf_p) = yytext + yyless_macro_arg; \
+		toktext[tokleng] = (yy_hold_char); \
+		(yy_c_buf_p) = toktext + yyless_macro_arg; \
 		(yy_hold_char) = *(yy_c_buf_p); \
 		*(yy_c_buf_p) = '\0'; \
-		yyleng = yyless_macro_arg; \
+		tokleng = yyless_macro_arg; \
 		} \
 	while ( 0 )
 
@@ -3619,85 +3383,85 @@ static void yynoreturn yy_fatal_error (const char* msg )
 /** Get the current line number.
  * 
  */
-int yyget_lineno  (void)
+int tokget_lineno  (void)
 {
-    
-    return yylineno;
+        
+    return toklineno;
 }
 
 /** Get the input stream.
  * 
  */
-FILE *yyget_in  (void)
+FILE *tokget_in  (void)
 {
-        return yyin;
+        return tokin;
 }
 
 /** Get the output stream.
  * 
  */
-FILE *yyget_out  (void)
+FILE *tokget_out  (void)
 {
-        return yyout;
+        return tokout;
 }
 
 /** Get the length of the current token.
  * 
  */
-yy_size_t yyget_leng  (void)
+int tokget_leng  (void)
 {
-        return yyleng;
+        return tokleng;
 }
 
 /** Get the current token.
  * 
  */
 
-char *yyget_text  (void)
+char *tokget_text  (void)
 {
-        return yytext;
+        return toktext;
 }
 
 /** Set the current line number.
  * @param _line_number line number
  * 
  */
-void yyset_lineno (int  _line_number )
+void tokset_lineno (int  _line_number )
 {
     
-    yylineno = _line_number;
+    toklineno = _line_number;
 }
 
 /** Set the input stream. This does not discard the current
  * input buffer.
  * @param _in_str A readable stream.
  * 
- * @see yy_switch_to_buffer
+ * @see tok_switch_to_buffer
  */
-void yyset_in (FILE *  _in_str )
+void tokset_in (FILE *  _in_str )
 {
-        yyin = _in_str ;
+        tokin = _in_str ;
 }
 
-void yyset_out (FILE *  _out_str )
+void tokset_out (FILE *  _out_str )
 {
-        yyout = _out_str ;
+        tokout = _out_str ;
 }
 
-int yyget_debug  (void)
+int tokget_debug  (void)
 {
-        return yy_flex_debug;
+        return tok_flex_debug;
 }
 
-void yyset_debug (int  _bdebug )
+void tokset_debug (int  _bdebug )
 {
-        yy_flex_debug = _bdebug ;
+        tok_flex_debug = _bdebug ;
 }
 
 static int yy_init_globals (void)
 {
         /* Initialization is the same as for the non-reentrant scanner.
-     * This function is called from yylex_destroy(), so don't allocate here.
+     * This function is called from toklex_destroy(), so don't allocate here.
      */
 
     (yy_buffer_stack) = NULL;
@@ -3709,36 +3473,36 @@ static int yy_init_globals (void)
 
 /* Defined in main.c */
 #ifdef YY_STDINIT
-    yyin = stdin;
-    yyout = stdout;
+    tokin = stdin;
+    tokout = stdout;
 #else
-    yyin = NULL;
-    yyout = NULL;
+    tokin = NULL;
+    tokout = NULL;
 #endif
 
     /* For future reference: Set errno on error, since we are called by
-     * yylex_init()
+     * toklex_init()
      */
     return 0;
 }
 
-/* yylex_destroy is for both reentrant and non-reentrant scanners. */
-int yylex_destroy  (void)
+/* toklex_destroy is for both reentrant and non-reentrant scanners. */
+int toklex_destroy  (void)
 {
     
     /* Pop the buffer stack, destroying each element. */
 	while(YY_CURRENT_BUFFER){
-		yy_delete_buffer( YY_CURRENT_BUFFER  );
+		tok_delete_buffer(YY_CURRENT_BUFFER  );
 		YY_CURRENT_BUFFER_LVALUE = NULL;
-		yypop_buffer_state();
+		tokpop_buffer_state();
 	}
 
 	/* Destroy the stack itself. */
-	yyfree((yy_buffer_stack) );
+	tokfree((yy_buffer_stack) );
 	(yy_buffer_stack) = NULL;
 
     /* Reset the globals. This is important in a non-reentrant scanner so the next time
-     * yylex() is called, initialization will occur. */
+     * toklex() is called, initialization will occur. */
     yy_init_globals( );
 
     return 0;
@@ -3749,7 +3513,7 @@ int yylex_destroy  (void)
  */
 
 #ifndef yytext_ptr
-static void yy_flex_strncpy (char* s1, const char * s2, int n )
+static void yy_flex_strncpy (char* s1, yyconst char * s2, int n )
 {
 		
 	int i;
@@ -3759,7 +3523,7 @@ static void yy_flex_strncpy (char* s1, const char * s2, int n )
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen (const char * s )
+static int yy_flex_strlen (yyconst char * s )
 {
 	int n;
 	for ( n = 0; s[n]; ++n )
@@ -3769,12 +3533,12 @@ static int yy_flex_strlen (const char * s )
 }
 #endif
 
-void *yyalloc (yy_size_t  size )
+void *tokalloc (yy_size_t  size )
 {
 			return malloc(size);
 }
 
-void *yyrealloc  (void * ptr, yy_size_t  size )
+void *tokrealloc  (void * ptr, yy_size_t  size )
 {
 		
 	/* The cast to (char *) in the following accommodates both
@@ -3787,14 +3551,15 @@ void *yyrealloc  (void * ptr, yy_size_t  size )
 	return realloc(ptr, size);
 }
 
-void yyfree (void * ptr )
+void tokfree (void * ptr )
 {
-			free( (char *) ptr );	/* see yyrealloc() for (char *) cast */
+			free( (char *) ptr );	/* see tokrealloc() for (char *) cast */
 }
 
 #define YYTABLES_NAME "yytables"
 
 #line 63 "../src/TextTokenizer.l"
+
 
 
 indri::parse::TokenizedDocument* indri::parse::TextTokenizer::tokenize( indri::parse::UnparsedDocument* document ) {
